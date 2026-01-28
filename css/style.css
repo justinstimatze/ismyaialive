@@ -47,6 +47,9 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    /* Safe area support for notched devices */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 main {
@@ -157,6 +160,20 @@ a:hover {
     font-size: 1.25rem;
     color: var(--color-text-muted);
     margin-bottom: var(--spacing-lg);
+}
+
+.hero-skeptic {
+    margin-top: var(--spacing-sm);
+    font-size: 0.9rem;
+}
+
+.hero-skeptic a {
+    color: var(--color-text-muted);
+    text-decoration: underline;
+}
+
+.hero-skeptic a:hover {
+    color: var(--color-text);
 }
 
 /* Buttons */
@@ -302,6 +319,7 @@ a:hover {
     background: var(--color-text);
     color: white;
     padding: var(--spacing-lg) 0;
+    padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
     margin-top: auto;
 }
 
@@ -1273,7 +1291,22 @@ textarea:focus {
     }
 }
 
-/* Responsive */
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    .hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Responsive - Mobile */
 @media (max-width: 640px) {
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.25rem; }
@@ -1290,17 +1323,36 @@ textarea:focus {
         gap: var(--spacing-sm);
     }
 
+    .nav-links a {
+        font-size: 0.9rem;
+    }
+
     .radio-group {
         flex-direction: column;
     }
 
+    /* Touch target improvements - min 44px height */
     .radio-label {
         width: 100%;
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+    }
+
+    .btn {
+        min-height: 48px;
+        padding: 0.875rem 1.5rem;
     }
 
     .btn-large {
         width: 100%;
         text-align: center;
+        min-height: 52px;
+    }
+
+    input[type="text"],
+    textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        min-height: 48px;
     }
 
     .result-actions {
@@ -1317,6 +1369,16 @@ textarea:focus {
 
     .story-meta {
         flex-wrap: wrap;
+    }
+
+    /* Improve tap spacing */
+    .footer-links {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .footer-links a {
+        padding: 0.5rem 0;
     }
 }
 

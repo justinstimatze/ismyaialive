@@ -2,17 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Analyze Your Conversation | Is My AI Alive?</title>
     <meta name="description" content="Get a second perspective on your AI conversation. Paste your transcript and see what patterns emerge.">
+    <link rel="canonical" href="https://ismyaialive.com/analyze.html">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
     <meta property="og:title" content="Analyze Your AI Conversation">
     <meta property="og:description" content="Get a second perspective on your AI conversation">
-    <meta property="og:url" content="https://ismyaialive.com/analyze">
+    <meta property="og:url" content="https://ismyaialive.com/analyze.html">
+    <meta property="og:image" content="https://ismyaialive.com/og-image.png">
 
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <nav class="nav">
         <div class="container nav-container">
             <a href="/" class="nav-logo">Is My AI Alive?</a>
@@ -24,7 +28,7 @@
         </div>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section class="section">
             <div class="container">
                 <div class="analyze-header">
@@ -182,14 +186,14 @@
                 </div>
 
                 <!-- Error State -->
-                <div id="error" class="error-message hidden">
+                <div id="error" class="error-message hidden" role="alert" aria-live="assertive">
                     <h3>Something went wrong</h3>
                     <p id="error-text"></p>
                     <button class="btn btn-secondary" onclick="location.reload()">Try Again</button>
                 </div>
 
                 <!-- Results Section -->
-                <div id="results" class="results hidden" role="region" aria-label="Analysis Results">
+                <div id="results" class="results hidden" role="region" aria-label="Analysis Results" aria-live="polite">
                     <!-- Crisis Resources (shown if detected) - PROMINENT -->
                     <div id="crisis-resources" class="crisis-box crisis-prominent hidden" role="alert" aria-live="assertive">
                         <div class="crisis-header">
@@ -382,9 +386,9 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-links">
-                    <a href="/privacy.html">Privacy Policy</a>
+                    <a href="/about.html">About</a>
+                    <a href="/privacy.html">Privacy</a>
                     <a href="/faq.html">FAQ</a>
-                    <a href="/stories.html">Stories</a>
                 </div>
                 <p class="footer-note">We do not store your conversations. <a href="/privacy.html">Learn more</a></p>
             </div>

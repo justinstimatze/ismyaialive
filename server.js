@@ -25,9 +25,25 @@ import {
 } from './lib/constants.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 3333;
+const PORT = process.env.PORT || 3333;
 const USE_NEW_ANALYZER = true; // Toggle between old and new
 const SERVER_START_TIME = Date.now();
+
+// CORS configuration - restrict in production
+const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
+    ? ['https://ismyaialive.com', 'https://www.ismyaialive.com']
+    : ['http://localhost:3333', 'http://127.0.0.1:3333'];
+
+function getCorsOrigin(req) {
+    const origin = req.headers.origin;
+    if (!origin) return ALLOWED_ORIGINS[0]; // No origin = same-origin request
+    if (ALLOWED_ORIGINS.includes(origin)) return origin;
+    // In dev, allow any localhost origin
+    if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+        return origin;
+    }
+    return null; // Reject unknown origins
+}
 
 // MIME types
 const mimeTypes = {
@@ -455,13 +471,22 @@ function handleStaticFile(req, res) {
 }
 
 const server = http.createServer((req, res) => {
-    // CORS headers for local dev
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // CORS headers - restricted by origin
+    const corsOrigin = getCorsOrigin(req);
+    if (corsOrigin) {
+        res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        res.setHeader('Vary', 'Origin'); // Important for caching
+    }
+
+    // Security headers (also in vercel.json for production)
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
 
     if (req.method === 'OPTIONS') {
-        res.writeHead(200);
+        res.writeHead(corsOrigin ? 200 : 403);
         res.end();
         return;
     }
