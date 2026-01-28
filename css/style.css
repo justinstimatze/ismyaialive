@@ -1143,6 +1143,35 @@ textarea:focus {
     margin-bottom: var(--spacing-xs);
 }
 
+/* Methodology */
+.methodology-content h2 {
+    margin-top: var(--spacing-xl);
+    color: var(--color-primary);
+}
+
+.methodology-content h2:first-child {
+    margin-top: 0;
+}
+
+.limitation-box {
+    background: #fff8e6;
+    border-left: 4px solid #f59e0b;
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: var(--radius);
+}
+
+.limitation-box h3 {
+    color: #b45309;
+    margin-bottom: var(--spacing-xs);
+    font-size: 1rem;
+}
+
+.limitation-box p {
+    margin: 0;
+    color: var(--color-text);
+}
+
 /* Stories */
 .story-article {
     margin-bottom: var(--spacing-xl);
