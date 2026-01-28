@@ -1905,3 +1905,339 @@ input[type="radio"]:focus-visible + span {
         font-size: 14pt;
     }
 }
+
+/* ============================================================================
+   NEW FEATURES - Multi-persona Feedback Improvements
+   ============================================================================ */
+
+/* Clinical Disclaimer */
+.clinical-disclaimer {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+.clinical-disclaimer strong {
+    color: #b45309;
+}
+
+/* Field Hints */
+.field-hint {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-xs);
+    font-style: italic;
+}
+
+/* Crisis Region Tabs */
+.crisis-region-tabs {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.crisis-tab {
+    background: white;
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.crisis-tab:hover {
+    border-color: var(--color-crisis);
+}
+
+.crisis-tab.active {
+    background: var(--color-crisis);
+    color: white;
+    border-color: var(--color-crisis);
+}
+
+.crisis-intl-list {
+    text-align: left;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.crisis-intl-list p {
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.9rem;
+}
+
+/* Healthy Results Section */
+.healthy-section {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 2px solid #10b981;
+}
+
+.healthy-section h2 {
+    color: #065f46;
+}
+
+.healthy-points {
+    display: grid;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-lg) 0;
+}
+
+.healthy-point {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius);
+}
+
+.healthy-icon {
+    color: #10b981;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.healthy-note {
+    color: #047857;
+    font-style: italic;
+}
+
+/* Roleplay Note Section */
+.roleplay-note-section {
+    background: #f0f9ff;
+    border-left: 4px solid #0ea5e9;
+}
+
+.roleplay-note-section h2 {
+    color: #0369a1;
+}
+
+.roleplay-note-section p {
+    color: #0c4a6e;
+}
+
+/* Transparency List (About page) */
+.transparency-list {
+    background: var(--color-bg-alt);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    list-style: none;
+    margin: var(--spacing-md) 0;
+}
+
+.transparency-list li {
+    margin-bottom: var(--spacing-sm);
+    padding-left: 0;
+}
+
+.transparency-list li strong {
+    color: var(--color-primary);
+}
+
+/* Social Proof Note (replacement for fake counter) */
+.social-proof-note {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+/* ============================================================================
+   FAMILY & FRIENDS PAGE STYLES
+   ============================================================================ */
+
+.family-content h2 {
+    margin-top: var(--spacing-xl);
+    color: var(--color-primary);
+}
+
+.family-content h2:first-child {
+    margin-top: 0;
+}
+
+.family-content ul {
+    margin: var(--spacing-sm) 0 var(--spacing-md) var(--spacing-lg);
+}
+
+.family-content li {
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Don't / Do Boxes */
+.dont-box, .do-box {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: var(--radius);
+}
+
+.dont-box {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+}
+
+.dont-box h3 {
+    color: #dc2626;
+    margin-bottom: var(--spacing-xs);
+}
+
+.dont-box p {
+    color: #7f1d1d;
+    margin: 0;
+}
+
+.do-box {
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+}
+
+.do-box h3 {
+    color: #16a34a;
+    margin-bottom: var(--spacing-xs);
+}
+
+.do-box p {
+    color: #14532d;
+    margin: 0;
+}
+
+/* Share Approaches */
+.share-approach {
+    background: var(--color-bg-alt);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: var(--radius);
+}
+
+.share-approach h4 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.share-approach p {
+    margin: 0;
+    font-style: italic;
+    color: var(--color-text-muted);
+}
+
+/* Family Story */
+.family-story {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    margin: var(--spacing-lg) 0;
+}
+
+.family-story p {
+    margin-bottom: var(--spacing-md);
+}
+
+.family-story .story-attribution {
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+    text-align: right;
+}
+
+/* Resource List */
+.resource-list {
+    display: grid;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-lg) 0;
+}
+
+.resource-item {
+    display: block;
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s;
+}
+
+.resource-item:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+}
+
+.resource-item strong {
+    display: block;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.resource-item span {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+/* ============================================================================
+   PRESS PAGE STYLES
+   ============================================================================ */
+
+.press-content h2 {
+    margin-top: var(--spacing-xl);
+    color: var(--color-primary);
+}
+
+.press-content h2:first-child {
+    margin-top: 0;
+}
+
+.press-facts {
+    background: var(--color-bg-alt);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    list-style: none;
+}
+
+.press-facts li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.contact-email {
+    font-size: 1.25rem;
+}
+
+.contact-email a {
+    font-weight: 600;
+}
+
+.citation-box {
+    background: var(--color-bg-alt);
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+}
+
+.citation-box p {
+    margin-bottom: var(--spacing-xs);
+}
+
+.citation-box p:last-child {
+    margin-bottom: 0;
+}
+
+/* About Page Content */
+.about-content h2 {
+    margin-top: var(--spacing-xl);
+    color: var(--color-primary);
+}
+
+.about-content h2:first-child {
+    margin-top: 0;
+}
+
+.about-content ul {
+    margin: var(--spacing-sm) 0 var(--spacing-md) var(--spacing-lg);
+}
+
+.about-content li {
+    margin-bottom: var(--spacing-xs);
+}

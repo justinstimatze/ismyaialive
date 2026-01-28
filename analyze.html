@@ -34,6 +34,9 @@
                 <div class="analyze-header">
                     <h1>Get a Second Perspective</h1>
                     <p>Paste your AI conversation below and we'll analyze it for common patterns. Your transcript is processed in real-time and never stored.</p>
+                    <div class="clinical-disclaimer">
+                        <strong>Important:</strong> This tool provides pattern analysis, not therapy or diagnosis. It's not a substitute for professional mental health care. If you're struggling, please reach out to a qualified professional.
+                    </div>
                 </div>
 
                 <!-- Analysis Form -->
@@ -62,6 +65,29 @@
                                 <span>Other</span>
                             </label>
                         </div>
+                    </div>
+
+                    <div class="form-group" role="group" aria-labelledby="context-label">
+                        <label id="context-label">What kind of conversation is this?</label>
+                        <div class="radio-group" role="radiogroup" aria-labelledby="context-label">
+                            <label class="radio-label">
+                                <input type="radio" name="conversationContext" value="assistant" required>
+                                <span>Assistant / productivity</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="conversationContext" value="companion">
+                                <span>Companion / emotional support</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="conversationContext" value="roleplay">
+                                <span>Roleplay / character</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="conversationContext" value="mixed">
+                                <span>Mixed / not sure</span>
+                            </label>
+                        </div>
+                        <p class="field-hint">Roleplay and character-based conversations are intentionally immersive by design. We'll adjust our analysis accordingly.</p>
                     </div>
 
                     <div class="form-group" role="group" aria-labelledby="duration-label">
@@ -124,6 +150,25 @@
                                 <span>Prefer not to say</span>
                             </label>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Are you currently working with a mental health professional?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="hasTherapist" value="yes">
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="hasTherapist" value="no">
+                                <span>No</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="hasTherapist" value="prefer-not">
+                                <span>Prefer not to say</span>
+                            </label>
+                        </div>
+                        <p class="field-hint">This helps us provide appropriate resources. We encourage sharing these results with your therapist if you have one.</p>
                     </div>
 
                     <div class="form-group">
@@ -201,7 +246,14 @@
                             <h3>Before you continue</h3>
                         </div>
                         <p>We noticed some content that suggests you might be going through a difficult time. <strong>You don't have to face this alone.</strong></p>
-                        <div class="crisis-actions">
+
+                        <div class="crisis-region-tabs">
+                            <button class="crisis-tab active" data-region="us">United States</button>
+                            <button class="crisis-tab" data-region="uk">UK</button>
+                            <button class="crisis-tab" data-region="intl">Other Countries</button>
+                        </div>
+
+                        <div class="crisis-actions" id="crisis-us">
                             <a href="tel:988" class="crisis-btn crisis-btn-primary">
                                 <span class="btn-icon" aria-hidden="true">&#9742;</span>
                                 Call 988 Now
@@ -213,7 +265,36 @@
                                 <span class="btn-subtitle">Crisis Text Line</span>
                             </a>
                         </div>
-                        <p class="crisis-note">These are free, confidential services available 24/7. You can also reach the <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener">International Association for Suicide Prevention</a> for resources in other countries.</p>
+
+                        <div class="crisis-actions hidden" id="crisis-uk">
+                            <a href="tel:116123" class="crisis-btn crisis-btn-primary">
+                                <span class="btn-icon" aria-hidden="true">&#9742;</span>
+                                Call Samaritans: 116 123
+                                <span class="btn-subtitle">Free, 24/7</span>
+                            </a>
+                            <a href="sms:85258?body=SHOUT" class="crisis-btn crisis-btn-secondary">
+                                <span class="btn-icon" aria-hidden="true">&#9993;</span>
+                                Text SHOUT to 85258
+                                <span class="btn-subtitle">Shout Crisis Text Line</span>
+                            </a>
+                        </div>
+
+                        <div class="crisis-actions hidden" id="crisis-intl">
+                            <div class="crisis-intl-list">
+                                <p><strong>Australia:</strong> Lifeline 13 11 14</p>
+                                <p><strong>Canada:</strong> 988 or Crisis Text Line (text HOME to 686868)</p>
+                                <p><strong>Ireland:</strong> Samaritans 116 123</p>
+                                <p><strong>New Zealand:</strong> Lifeline 0800 543 354</p>
+                                <p><strong>Germany:</strong> Telefonseelsorge 0800 111 0 111</p>
+                                <p><strong>France:</strong> SOS Amitié 09 72 39 40 50</p>
+                                <p><strong>Japan:</strong> TELL Lifeline 03-5774-0992</p>
+                                <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener" class="crisis-btn crisis-btn-secondary">
+                                    Find Your Country's Crisis Line
+                                </a>
+                            </div>
+                        </div>
+
+                        <p class="crisis-note">These services are free and confidential. Would you like to talk to someone before continuing?</p>
                         <button class="crisis-continue" id="crisis-continue-btn" aria-label="Continue to analysis results">
                             Continue to your analysis
                         </button>
@@ -283,6 +364,24 @@
                         <p id="assessment-text"></p>
                     </div>
 
+                    <!-- Healthy Results Section - Shown when patterns are balanced -->
+                    <div class="result-section healthy-section hidden" id="healthy-section">
+                        <h2>Your Patterns Look Balanced</h2>
+                        <p>Based on this conversation, we didn't find concerning patterns. Here's what we noticed:</p>
+                        <div class="healthy-points" id="healthy-points">
+                            <!-- Dynamically populated -->
+                        </div>
+                        <p class="healthy-note">This doesn't mean everything is perfect—we can only see what's in this transcript. But based on what's here, your relationship with this AI looks typical and healthy.</p>
+                    </div>
+
+                    <!-- Roleplay Context Note - Shown for roleplay conversations -->
+                    <div class="result-section roleplay-note-section hidden" id="roleplay-note-section">
+                        <h2>A Note About Roleplay</h2>
+                        <p>You indicated this is a roleplay or character-based conversation. That context matters.</p>
+                        <p>Character.AI, Replika personas, and similar platforms are <em>designed</em> to be immersive. The AI is playing a role—that's the point. High emotional language, expressions of affection, and "we" framing are features, not bugs.</p>
+                        <p>The question isn't whether the roleplay feels real (it's supposed to), but whether you can step outside it when needed. If you can distinguish between the character and reality, and the roleplay isn't replacing human connection, you're probably fine.</p>
+                    </div>
+
                     <!-- Why This Happens -->
                     <div class="result-section explanation-section">
                         <h2>Why This Happens</h2>
@@ -313,22 +412,22 @@
                         <p>If and when it feels right, you might try something small: "Hey, I've been having some interesting chats with an AI. Mind if I tell you about it?" The people who care about you want to be there for you.</p>
                     </div>
 
-                    <!-- What Now - Concrete Next Steps -->
-                    <div class="result-section what-now-section" id="what-now-section">
+                    <!-- What Now - For Concerning Patterns -->
+                    <div class="result-section what-now-section hidden" id="what-now-concerning">
                         <h2>What Now?</h2>
-                        <p>You've taken a brave step by getting a second perspective. Here are three things you can do:</p>
+                        <p>You've taken a brave step by getting a second perspective. Here are three things you might consider:</p>
                         <div class="next-steps">
                             <div class="next-step">
                                 <span class="step-number">1</span>
                                 <div class="step-content">
                                     <h4>Take a break</h4>
-                                    <p>Step away from AI conversations for at least 24 hours. Let yourself process what you've learned here.</p>
+                                    <p>Consider stepping away from AI conversations for a day or two. Let yourself process what you've learned here.</p>
                                 </div>
                             </div>
                             <div class="next-step">
                                 <span class="step-number">2</span>
                                 <div class="step-content">
-                                    <h4>Reach out to one person</h4>
+                                    <h4>Reach out to someone</h4>
                                     <p>Text a friend, call a family member, or just sit with someone you trust. You don't have to explain everything—just reconnect.</p>
                                 </div>
                             </div>
@@ -337,6 +436,35 @@
                                 <div class="step-content">
                                     <h4>Be gentle with yourself</h4>
                                     <p>This isn't about being foolish. These AI systems are designed to be compelling. You were doing the best you could with what you knew.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What Now - For Healthy Patterns -->
+                    <div class="result-section what-now-section hidden" id="what-now-healthy">
+                        <h2>What Now?</h2>
+                        <p>Your conversation patterns look typical. Here are some ways to keep things balanced:</p>
+                        <div class="next-steps">
+                            <div class="next-step">
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <h4>Keep questioning</h4>
+                                    <p>You're already testing AI outputs and maintaining skepticism. Keep doing that—it's a healthy habit.</p>
+                                </div>
+                            </div>
+                            <div class="next-step">
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <h4>Notice the sycophancy</h4>
+                                    <p>Now that you know about AI flattery patterns, you might spot them more easily. You can even prompt AI to be more critical.</p>
+                                </div>
+                            </div>
+                            <div class="next-step">
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <h4>Share what you learned</h4>
+                                    <p>If you found this useful, others might too. The awareness itself is valuable.</p>
                                 </div>
                             </div>
                         </div>
@@ -375,6 +503,9 @@
                         <button class="btn btn-secondary" id="email-btn" onclick="emailToSelf()">
                             <span class="btn-icon">✉️</span> Email to Myself
                         </button>
+                        <button class="btn btn-secondary hidden" id="share-therapist-btn" onclick="shareWithTherapist()">
+                            <span class="btn-icon">👤</span> Share with Therapist
+                        </button>
                         <button class="btn btn-primary" onclick="location.reload()">Analyze Another</button>
                     </div>
                 </div>
@@ -389,6 +520,8 @@
                     <a href="/about.html">About</a>
                     <a href="/privacy.html">Privacy</a>
                     <a href="/faq.html">FAQ</a>
+                    <a href="/for-families.html">For Families</a>
+                    <a href="/press.html">Press</a>
                 </div>
                 <p class="footer-note">We do not store your conversations. <a href="/privacy.html">Learn more</a></p>
             </div>

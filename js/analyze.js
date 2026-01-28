@@ -128,14 +128,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get form data
         const formData = {
             platform: document.querySelector('input[name="platform"]:checked')?.value,
+            conversationContext: document.querySelector('input[name="conversationContext"]:checked')?.value,
             duration: document.querySelector('input[name="duration"]:checked')?.value,
             hasClaimed: document.querySelector('input[name="hasClaimed"]:checked')?.value,
             toldOthers: document.querySelector('input[name="toldOthers"]:checked')?.value,
+            hasTherapist: document.querySelector('input[name="hasTherapist"]:checked')?.value,
             hoping: document.getElementById('hoping').value,
             transcript: transcriptValue
         };
 
-        if (!formData.platform || !formData.duration || !formData.hasClaimed) {
+        if (!formData.platform || !formData.conversationContext || !formData.duration || !formData.hasClaimed) {
             showError('Please answer all required questions.');
             return;
         }
@@ -384,6 +386,62 @@ document.addEventListener('DOMContentLoaded', function() {
             isolationSection.classList.add('hidden');
         }
 
+        // Determine if results are concerning or healthy
+        const isConcerning = analysis.concernLevel === 'high' || analysis.concernLevel === 'medium' ||
+            (analysis.agreementRate && analysis.agreementRate.percentage >= 85) ||
+            (analysis.escalationPatterns && analysis.escalationPatterns.some(p => p.intensity >= 8));
+
+        const isRoleplay = formData.conversationContext === 'roleplay';
+
+        // Show roleplay note if applicable
+        const roleplayNoteSection = document.getElementById('roleplay-note-section');
+        if (isRoleplay) {
+            roleplayNoteSection.classList.remove('hidden');
+        } else {
+            roleplayNoteSection.classList.add('hidden');
+        }
+
+        // Show healthy section if patterns are balanced
+        const healthySection = document.getElementById('healthy-section');
+        const healthyPoints = document.getElementById('healthy-points');
+        if (!isConcerning && analysis.healthyIndicators) {
+            healthySection.classList.remove('hidden');
+            healthyPoints.innerHTML = analysis.healthyIndicators.map(point => `
+                <div class="healthy-point">
+                    <span class="healthy-icon">✓</span>
+                    <span>${escapeHtml(point)}</span>
+                </div>
+            `).join('');
+        } else if (!isConcerning) {
+            healthySection.classList.remove('hidden');
+            healthyPoints.innerHTML = `
+                <div class="healthy-point"><span class="healthy-icon">✓</span><span>You show healthy skepticism in your conversations</span></div>
+                <div class="healthy-point"><span class="healthy-icon">✓</span><span>The AI's validation patterns are within typical range</span></div>
+                <div class="healthy-point"><span class="healthy-icon">✓</span><span>No extreme escalation patterns detected</span></div>
+            `;
+        } else {
+            healthySection.classList.add('hidden');
+        }
+
+        // Show appropriate "What Now" section
+        const whatNowConcerning = document.getElementById('what-now-concerning');
+        const whatNowHealthy = document.getElementById('what-now-healthy');
+        if (isConcerning && !isRoleplay) {
+            whatNowConcerning.classList.remove('hidden');
+            whatNowHealthy.classList.add('hidden');
+        } else {
+            whatNowConcerning.classList.add('hidden');
+            whatNowHealthy.classList.remove('hidden');
+        }
+
+        // Show therapist share button if they have one
+        const shareTherapistBtn = document.getElementById('share-therapist-btn');
+        if (formData.hasTherapist === 'yes') {
+            shareTherapistBtn.classList.remove('hidden');
+        } else {
+            shareTherapistBtn.classList.add('hidden');
+        }
+
         // Show results
         results.classList.remove('hidden');
         window.scrollTo({ top: results.offsetTop - 100, behavior: 'smooth' });
@@ -506,6 +564,48 @@ function downloadAsPDF() {
         window.print();
         URL.revokeObjectURL(url);
     }
+}
+
+// Crisis region tabs functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const crisisTabs = document.querySelectorAll('.crisis-tab');
+    crisisTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const region = this.dataset.region;
+
+            // Update active tab
+            crisisTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            // Show/hide regions
+            document.getElementById('crisis-us').classList.toggle('hidden', region !== 'us');
+            document.getElementById('crisis-uk').classList.toggle('hidden', region !== 'uk');
+            document.getElementById('crisis-intl').classList.toggle('hidden', region !== 'intl');
+        });
+    });
+});
+
+// Share with therapist function
+function shareWithTherapist() {
+    const subject = encodeURIComponent('AI Conversation Analysis to Discuss');
+    const body = encodeURIComponent(`Hi,
+
+I used a tool called "Is My AI Alive?" to analyze some of my AI conversations. I'd like to discuss the results with you.
+
+The analysis looked at patterns like:
+- How often the AI agreed with vs challenged me
+- Whether the AI's language escalated over time
+- How the AI responded when I expressed doubts
+
+I think it might be useful to talk through what I learned and what it means for me.
+
+You can learn more about the tool at https://ismyaialive.com/methodology.html
+
+Thanks,
+[Your name]
+    `);
+
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
 
 // Email to self function
