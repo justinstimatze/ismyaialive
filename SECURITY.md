@@ -6,7 +6,7 @@ We take security seriously. If you discover a security vulnerability in Is My AI
 
 ### How to Report
 
-**Email:** security@ismyaialive.com
+**Email:** hello@ismyaialive.com (subject: Security)
 
 Please include:
 - Description of the vulnerability

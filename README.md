@@ -124,6 +124,17 @@ npm run test:ui
 npm run test:all
 ```
 
+## Assets
+
+### OG Image
+The `og-image.svg` file is a template. To generate the required `og-image.png`:
+
+1. Open `og-image.svg` in a browser or design tool
+2. Export as PNG at 1200x630 pixels
+3. Save as `og-image.png` in the root directory
+
+Without this file, social media shares will lack a preview image.
+
 ## Deployment
 
 ### Vercel (Recommended)

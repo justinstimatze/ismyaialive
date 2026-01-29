@@ -1208,6 +1208,44 @@ textarea:focus {
     color: var(--color-text-muted);
 }
 
+.story-source {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+.story-source a {
+    color: var(--color-primary);
+}
+
+.stories-note {
+    background: var(--color-crisis-bg);
+    border: 1px solid var(--color-crisis);
+    border-radius: var(--radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stories-note p {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.healthy-use-note {
+    background: #f0fdf4;
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-xl) 0;
+}
+
+.healthy-use-note h2 {
+    color: var(--color-success);
+    margin-bottom: var(--spacing-sm);
+}
+
 .common-threads {
     background: var(--color-bg-alt);
     padding: var(--spacing-lg);
