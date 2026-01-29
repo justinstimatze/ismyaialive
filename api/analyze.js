@@ -20,15 +20,57 @@ import {
     HTTP
 } from '../lib/constants.js';
 
+// Allowed CORS origins
+const ALLOWED_ORIGINS = [
+    'https://ismyaialive.com',
+    'https://www.ismyaialive.com'
+];
+
+// Maximum request body size (100KB)
+const MAX_BODY_SIZE = 100 * 1024;
+
+function getCorsOrigin(origin) {
+    if (!origin) return ALLOWED_ORIGINS[0];
+    if (ALLOWED_ORIGINS.includes(origin)) return origin;
+    return null;
+}
+
 export default async function handler(req, res) {
+    // Handle CORS
+    const origin = req.headers.origin;
+    const corsOrigin = getCorsOrigin(origin);
+
+    if (corsOrigin) {
+        res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        res.setHeader('Vary', 'Origin');
+    }
+
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(corsOrigin ? 200 : 403).end();
+    }
+
     // Only allow POST
     if (req.method !== 'POST') {
         return res.status(HTTP.BAD_REQUEST).json({ error: 'Method not allowed' });
     }
 
+    // Check request body size (Vercel parses body, but we validate the content)
+    const bodySize = JSON.stringify(req.body).length;
+    if (bodySize > MAX_BODY_SIZE) {
+        return res.status(HTTP.BAD_REQUEST).json({
+            error: 'Request too large. Please shorten your transcript.',
+            errorType: 'validation'
+        });
+    }
+
     try {
-        // Get client IP
-        const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+        // Get client IP - prefer Vercel's x-real-ip, fallback to x-forwarded-for
+        // Note: x-forwarded-for can be spoofed; x-real-ip is set by Vercel
+        const ip = req.headers['x-real-ip'] ||
+                   req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
                    req.socket?.remoteAddress ||
                    'unknown';
 

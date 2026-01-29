@@ -1,25 +1,47 @@
+# Dependencies
+node_modules/
+
 # Environment variables
 .env
 .env.local
 .env.*.local
 
-# Vercel
-.vercel
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
-# Dependencies (if any added later)
-node_modules/
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode/
-.idea/
-
 # Logs
 *.log
+npm-debug.log*
 
-# Test outputs
+# Test artifacts
 test-results/
+playwright-report/
+playwright/.cache/
+
+# Build outputs
+dist/
+build/
+
+# Vercel
+.vercel/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test data and development files
+test-transcript.txt
 tests/screenshots/
+
+# Python dev files (if any)
+*.py
+__pycache__/
+*.pyc

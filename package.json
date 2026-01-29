@@ -28,7 +28,7 @@
     "analysis",
     "sycophancy"
   ],
-  "author": "",
+  "author": "Is My AI Alive? Contributors",
   "license": "MIT",
   "dependencies": {
     "playwright": "^1.58.0"

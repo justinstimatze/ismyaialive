@@ -1,4 +1,27 @@
 // Analyze page JavaScript
+
+// Constants
+const CHAR_LIMITS = {
+    MIN: 500,
+    WARNING: 45000,
+    MAX: 50000
+};
+
+const CONCERN_THRESHOLDS = {
+    AGREEMENT_PERCENT: 85,
+    ESCALATION_INTENSITY: 8
+};
+
+const SIZE_CLASSES = {
+    LEVEL_5: 0.8,
+    LEVEL_4: 0.6,
+    LEVEL_3: 0.4,
+    LEVEL_2: 0.2
+};
+
+// Debounce flag to prevent double submission
+let isSubmitting = false;
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('analyze-form');
     const transcript = document.getElementById('transcript');
@@ -18,14 +41,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove previous classes
         charCount.classList.remove('char-warning', 'char-over');
 
-        if (count < 500) {
+        if (count < CHAR_LIMITS.MIN) {
             charCount.style.color = '#dc2626';
             charCount.classList.add('char-warning');
-            charCount.setAttribute('aria-label', `${count} characters, below minimum of 500`);
-        } else if (count > 45000) {
+            charCount.setAttribute('aria-label', `${count} characters, below minimum of ${CHAR_LIMITS.MIN}`);
+        } else if (count > CHAR_LIMITS.WARNING) {
             charCount.style.color = '#d97706';
             charCount.classList.add('char-over');
-            charCount.setAttribute('aria-label', `${count} characters, approaching maximum of 50,000`);
+            charCount.setAttribute('aria-label', `${count} characters, approaching maximum of ${CHAR_LIMITS.MAX.toLocaleString()}`);
         } else {
             charCount.style.color = '';
             charCount.setAttribute('aria-label', `${count} characters`);
@@ -114,14 +137,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form submission
+    // Form submission with debounce protection
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
+        // Prevent double submission
+        if (isSubmitting) {
+            return;
+        }
+
         // Validate
         const transcriptValue = transcript.value.trim();
-        if (transcriptValue.length < 500) {
-            showError('Please provide at least 500 characters for meaningful analysis.');
+        if (transcriptValue.length < CHAR_LIMITS.MIN) {
+            showError(`Please provide at least ${CHAR_LIMITS.MIN} characters for meaningful analysis.`);
             return;
         }
 
@@ -146,6 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
         window.lastFormData = formData;
 
         // Show loading with progress steps
+        isSubmitting = true;
+        submitBtn.disabled = true;
         form.classList.add('hidden');
         if (isolationSupport) isolationSupport.classList.add('hidden');
         loading.classList.remove('hidden');
@@ -163,10 +193,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(formData)
             });
 
-            const data = await response.json();
+            // Handle non-JSON responses gracefully
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                throw new Error(text || 'Server returned an unexpected response');
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || 'Analysis failed');
+            }
+
+            // Validate expected data structure
+            if (!data.analysis) {
+                throw new Error('Invalid response: missing analysis data');
             }
 
             // Stop progress and show results
@@ -179,7 +222,18 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             stopProgressSteps();
             loading.classList.add('hidden');
-            showError(err.message || 'Something went wrong. Please try again.');
+
+            // Provide user-friendly error messages
+            let errorMessage = err.message || 'Something went wrong. Please try again.';
+            if (err.name === 'TypeError' && err.message.includes('fetch')) {
+                errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
+            }
+
+            showError(errorMessage);
+        } finally {
+            // Reset debounce flag
+            isSubmitting = false;
+            submitBtn.disabled = false;
         }
     });
 
@@ -303,15 +357,16 @@ document.addEventListener('DOMContentLoaded', function() {
             flatterySection.classList.remove('hidden');
             flatteryTotal.textContent = analysis.flatteryWords.totalCount;
 
-            // Sort by count and assign sizes
+            // Sort by count and assign sizes based on relative frequency
             const sortedWords = [...analysis.flatteryWords.words].sort((a, b) => b.count - a.count);
             const maxCount = sortedWords[0]?.count || 1;
 
             flatteryCloud.innerHTML = sortedWords.map(item => {
-                const sizeClass = item.count >= maxCount * 0.8 ? 'size-5' :
-                                  item.count >= maxCount * 0.6 ? 'size-4' :
-                                  item.count >= maxCount * 0.4 ? 'size-3' :
-                                  item.count >= maxCount * 0.2 ? 'size-2' : 'size-1';
+                const ratio = item.count / maxCount;
+                const sizeClass = ratio >= SIZE_CLASSES.LEVEL_5 ? 'size-5' :
+                                  ratio >= SIZE_CLASSES.LEVEL_4 ? 'size-4' :
+                                  ratio >= SIZE_CLASSES.LEVEL_3 ? 'size-3' :
+                                  ratio >= SIZE_CLASSES.LEVEL_2 ? 'size-2' : 'size-1';
                 return `<span class="flattery-word ${sizeClass}">${escapeHtml(item.word)} <span class="flattery-count">${item.count}x</span></span>`;
             }).join('');
         } else {
@@ -388,8 +443,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Determine if results are concerning or healthy
         const isConcerning = analysis.concernLevel === 'high' || analysis.concernLevel === 'medium' ||
-            (analysis.agreementRate && analysis.agreementRate.percentage >= 85) ||
-            (analysis.escalationPatterns && analysis.escalationPatterns.some(p => p.intensity >= 8));
+            (analysis.agreementRate && analysis.agreementRate.percentage >= CONCERN_THRESHOLDS.AGREEMENT_PERCENT) ||
+            (analysis.escalationPatterns && analysis.escalationPatterns.some(p => p.intensity >= CONCERN_THRESHOLDS.ESCALATION_INTENSITY));
 
         const isRoleplay = formData.conversationContext === 'roleplay';
 
