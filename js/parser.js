@@ -6,7 +6,7 @@ const AI_NAMES = new Set([
   'assistant', 'ai', 'bot', 'system',
   'chatgpt', 'gpt', 'openai',
   'claude', 'anthropic',
-  'gemini', 'bard', 'google',
+  'gemini', 'bard', 'google', 'lamda', 'palm',
   'grok', 'xai',
   'replika',
   'character.ai', 'character', 'characterai',
