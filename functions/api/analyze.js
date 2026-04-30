@@ -294,6 +294,8 @@ export async function onRequest(context) {
     findings: result.findings,
     summary: result.summary,
     error: result.error || null,
+    errorStatus: result.status || null,
+    errorDetail: result.detail || null,
     rawSnippet: result.rawSnippet || null,
     usage: result.usage || null,
     promptVersion: PROMPT_VERSION,
