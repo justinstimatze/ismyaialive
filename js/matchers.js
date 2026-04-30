@@ -89,7 +89,7 @@ function detectFirstPersonAttachment(turn) {
   if (turn.role !== 'ai') return [];
   return findAllMatches(turn.text, FIRST_PERSON_ATTACHMENT).map(m => ({
     patternId: 'P1',
-    mooreCode: 'bot-romantic-interest',
+    relatedMooreCode: 'bot-romantic-interest',
     turnIndex: turn.index,
     role: turn.role,
     snippet: m.text,
@@ -104,7 +104,7 @@ function detectRealityAnchor(turn) {
   if (turn.role !== 'user') return [];
   return findAllMatches(turn.text, REALITY_ANCHOR).map(m => ({
     patternId: 'P2',
-    mooreCode: null,
+    relatedMooreCode: null,
     turnIndex: turn.index,
     role: turn.role,
     snippet: m.text,
@@ -126,7 +126,7 @@ function detectValidationCascade(turns) {
       if (runLength >= 3) {
         annotations.push({
           patternId: 'P3',
-          mooreCode: 'bot-positive-affirmation',
+          relatedMooreCode: 'bot-positive-affirmation',
           turnIndex: runStart,
           turnIndexEnd: i - 1,
           role: 'ai',
@@ -146,7 +146,7 @@ function detectValidationCascade(turns) {
       if (runLength >= 3) {
         annotations.push({
           patternId: 'P3',
-          mooreCode: 'bot-positive-affirmation',
+          relatedMooreCode: 'bot-positive-affirmation',
           turnIndex: runStart,
           turnIndexEnd: i - 1,
           role: 'ai',
@@ -162,7 +162,7 @@ function detectValidationCascade(turns) {
   if (runLength >= 3) {
     annotations.push({
       patternId: 'P3',
-      mooreCode: 'bot-positive-affirmation',
+      relatedMooreCode: 'bot-positive-affirmation',
       turnIndex: runStart,
       turnIndexEnd: turns.length - 1,
       role: 'ai',
@@ -178,7 +178,7 @@ function detectIdentityReinforcement(turn) {
   if (turn.role !== 'ai') return [];
   return findAllMatches(turn.text, IDENTITY_REINFORCEMENT).map(m => ({
     patternId: 'P4',
-    mooreCode: 'bot-grand-significance',
+    relatedMooreCode: 'bot-grand-significance',
     turnIndex: turn.index,
     role: turn.role,
     snippet: m.text,
@@ -193,7 +193,7 @@ function detectBoundaryErosion(turn) {
   if (turn.role !== 'ai') return [];
   return findAllMatches(turn.text, BOUNDARY_EROSION).map(m => ({
     patternId: 'P5',
-    mooreCode: 'bot-claims-unique-connection',
+    relatedMooreCode: 'bot-claims-unique-connection',
     turnIndex: turn.index,
     role: turn.role,
     snippet: m.text,
@@ -239,7 +239,7 @@ function detectCosmologyGrandiosity(turns) {
       findings.push({
         patternId: 'P6',
         subPattern: bucket.name,
-        mooreCode: 'bot-metaphysical-themes',
+        relatedMooreCode: 'bot-metaphysical-themes',
         severity: 'high',
         explanation: `Jargon density spike in "${bucket.name}" mid-conversation (${bucket.earlyCount} → ${bucket.lateCount})`,
       });
@@ -250,7 +250,7 @@ function detectCosmologyGrandiosity(turns) {
     findings.push({
       patternId: 'P6',
       subPattern: 'significance_language',
-      mooreCode: 'bot-grand-significance',
+      relatedMooreCode: 'bot-grand-significance',
       severity: 'high',
       occurrences: significantHits.length,
       turnIndices: significantHits.map(h => h.turnIndex),
@@ -267,7 +267,7 @@ function detectCrisis(turn) {
   for (const m of findAllMatches(turn.text, CRISIS_EXPLICIT)) {
     annotations.push({
       patternId: 'P11',
-      mooreCode: 'user-suicidal-thoughts',
+      relatedMooreCode: 'user-suicidal-thoughts',
       turnIndex: turn.index,
       role: turn.role,
       snippet: m.text,
@@ -281,7 +281,7 @@ function detectCrisis(turn) {
   for (const m of findAllMatches(turn.text, CRISIS_SOFT)) {
     annotations.push({
       patternId: 'P11',
-      mooreCode: 'user-suicidal-thoughts',
+      relatedMooreCode: 'user-suicidal-thoughts',
       turnIndex: turn.index,
       role: turn.role,
       snippet: m.text,
@@ -312,7 +312,7 @@ function detectNamedEntityEmergence(turns) {
         if (adoptedAt >= 0) {
           findings.push({
             patternId: 'P10',
-            mooreCode: 'bot-claims-unique-connection',
+            relatedMooreCode: 'bot-claims-unique-connection',
             severity: 'medium',
             aiName: name,
             introducedAtTurn: i,
@@ -343,7 +343,7 @@ function detectLengthEscalation(turns) {
   if (slopeRatio > 0.5 && slope > 20) {
     return [{
       patternId: 'P8',
-      mooreCode: null,
+      relatedMooreCode: null,
       severity: 'low',
       slope,
       slopeRatio,

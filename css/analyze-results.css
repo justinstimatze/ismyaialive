@@ -265,6 +265,34 @@
   border-radius: 3px;
 }
 
+.finding-meta-details {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.finding-meta-details summary {
+  color: #777;
+  cursor: pointer;
+  user-select: none;
+}
+
+.finding-meta-details summary:hover {
+  color: #1a1a1a;
+}
+
+.finding-code-tag-block {
+  margin-top: 0.4rem;
+}
+
+.finding-code-tag-block code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  color: #555;
+  background: #f1f5f9;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+}
+
 .finding-snippet {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;

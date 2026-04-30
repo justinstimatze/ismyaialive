@@ -23,6 +23,7 @@
                 <a href="/analyze.html">Analyze</a>
                 <a href="/faq.html">FAQ</a>
                 <a href="/stories.html">Stories</a>
+                <a href="/for-families.html">For Families</a>
             </div>
         </div>
     </nav>
@@ -84,6 +85,10 @@
                     </ul>
 
                     <p>Full verbatim definitions for each code (with positive and negative examples) are in our system prompt, which is published in full at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/system-prompt.md" target="_blank" rel="noopener">docs/system-prompt.md</a> in the repo. We don't redact anything from it — what we ask the model to do is the same thing we ask it to do.</p>
+
+                    <h2>What this is and isn't measuring</h2>
+                    <p>Moore et al.'s analysis is cohort- and conversation-level (391,562 messages across 19 participants); the codes were validated as descriptive labels for what these messages contained, not as a per-message diagnostic instrument. We apply the same codebook to a single user's transcript, which stretches what the codebook was originally validated for. Treat findings as observational labels, not measurements.</p>
+                    <p>Also: the code-level inter-annotator agreement Moore et al. report is between three human annotators. Their automated annotator (Gemini 3 Flash) had moderate agreement against humans (Cohen's κ = 0.566 overall, with substantial per-code variance — see Tables 5 and 6 of the paper). Our use of Claude Haiku 4.5 instead of Gemini 3 Flash is a substitution we have not validated against the same held-out set; we report this as a known gap rather than claim parity. A held-out fixture is in <code>tests/fixtures/validation-set.md</code> as the start of an internal validation effort.</p>
 
                     <h2>Reliability calibration</h2>
                     <p>Moore et al. report inter-annotator agreement (Cohen's kappa) for each code. We use that as a hard ceiling on our confidence labels:</p>

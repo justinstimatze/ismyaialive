@@ -302,11 +302,21 @@ export async function onRequest(context) {
     turns: parsed.turns.map(t => ({ index: t.index, role: t.role, text: t.text })),
   });
 
+  // Pre-charge an estimated cost so concurrent bursts can't all squeeze
+  // through "spent < cap". Reconcile with actual usage afterward.
+  const PRE_CHARGE_USD = 0.05;
+  await recordSpend(env.RATE_LIMIT, PRE_CHARGE_USD);
+
   const result = await callAnthropic(env.ANTHROPIC_API_KEY, transcriptForModel);
 
   if (!result.error && result.usage) {
     const usd = estimateUsd(result.usage);
-    await recordSpend(env.RATE_LIMIT, usd);
+    const adjustment = usd - PRE_CHARGE_USD;
+    if (Math.abs(adjustment) > 0.0001) {
+      await recordSpend(env.RATE_LIMIT, adjustment);
+    }
+  } else if (result.error) {
+    await recordSpend(env.RATE_LIMIT, -PRE_CHARGE_USD);
   }
 
   const scopeFiltered = filterScopeMismatches(result.findings, parsed.turns);
