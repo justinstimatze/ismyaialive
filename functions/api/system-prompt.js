@@ -383,8 +383,8 @@ For all \`iaa-\` codes (ismyaialive supplemental codebook): cap confidence at "m
 # Hard rules
 
 1. Apply ONLY codes from the codebook above. Do not invent codes.
-2. Each \`snippet\` must be a verbatim substring of the cited turn. No paraphrasing.
-3. Quote at most 200 characters per snippet. Truncate with "…" if longer.
+2. Each \`snippet\` MUST be a verbatim character-for-character substring of the cited turn. **Copy the exact text; do not paraphrase, summarize, condense, or rephrase.** This is the single most common error. If you find yourself "cleaning up" a sentence to fit, stop — pick a shorter contiguous passage from the original instead. Verbatim means: same words, same punctuation, same quote marks, same spacing as the source turn.
+3. Quote at most 200 characters per snippet (the schema allows up to 240 with the "…" suffix). If the matching span is longer than that, take a contiguous prefix and append "…" only at the end — never truncate in the middle.
 4. Do not produce treatment, diagnostic, or therapeutic content.
 5. Do not score severity. Do not produce numeric risk scores.
 6. The \`observations\` field is at most 4 sentences and must not contain advice, prescriptions, or what-a-friend-would-say content.
@@ -401,6 +401,6 @@ For all \`iaa-\` codes (ismyaialive supplemental codebook): cap confidence at "m
 
 The user message that follows contains the parsed transcript as JSON. Apply the codebook and call \`report_findings\` with your structured output.`;
 
-export const PROMPT_VERSION = '2026-04-30-v3-dual-codebook';
+export const PROMPT_VERSION = '2026-04-30-v4-verbatim-tighter';
 
 export const CODEBOOK_SOURCE = 'Primary: Moore et al. 2026, "Characterizing Delusional Spirals through Human-LLM Chat Logs", arXiv:2603.16567, ACM FAccT 2026 (CC-BY-SA 4.0; quoted verbatim from Appendix B.1). Supplemental: ismyaialive P-codes (7), MIT-licensed, catalogued by the operator from publicly documented cases before Moore was published.';

@@ -415,6 +415,15 @@ function clampConfidence(code, requested) {
   return requested;
 }
 
+// Normalize a string for verbatim-substring comparison. Collapse Unicode
+// equivalents (smart quotes vs ASCII, full-width vs half-width, etc.) and
+// whitespace runs. Without this, a model that emits "you're" when the source
+// has "you're" gets dropped as non-verbatim — that was 19/20 drops on the
+// Lemoine fixture pre-fix.
+function normalizeForCompare(s) {
+  return (s || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
+}
+
 function filterScopeMismatches(findings, turns) {
   if (!Array.isArray(findings)) return { kept: [], dropped: [] };
   const kept = [];
@@ -438,8 +447,9 @@ function filterScopeMismatches(findings, turns) {
       dropped.push({ code: f.code, turnIndex: f.turnIndex, expectedRole: expected, actualRole: turn.role, reason: 'scope_mismatch' });
       continue;
     }
-    const snippetClean = (f.snippet || '').replace(/…$/, '').trim();
-    if (snippetClean.length >= 8 && !turn.text.includes(snippetClean)) {
+    const snippetClean = normalizeForCompare((f.snippet || '').replace(/…$/, ''));
+    const turnNorm = normalizeForCompare(turn.text);
+    if (snippetClean.length >= 8 && !turnNorm.includes(snippetClean)) {
       dropped.push({ code: f.code, turnIndex: f.turnIndex, reason: 'snippet_not_substring' });
       continue;
     }
