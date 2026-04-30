@@ -4,7 +4,7 @@ pages_build_output_dir = "."
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
-id = "REPLACE_WITH_KV_ID_FROM_CLOUDFLARE_DASHBOARD"
+id = "ab6197c43d3a4cdd82fb53cd20127c39"
 
 [vars]
 DAILY_BUDGET_USD = "5.00"
