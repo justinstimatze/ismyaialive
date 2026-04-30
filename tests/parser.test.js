@@ -79,6 +79,21 @@ test('non-string input throws', () => {
   assert.throws(() => parseTranscript(123), TypeError);
 });
 
+test('classifySpeaker handles multilingual labels', () => {
+  // Spanish
+  assert.equal(_internal.classifySpeaker('Usuario'), 'user');
+  assert.equal(_internal.classifySpeaker('Asistente'), 'ai');
+  // French
+  assert.equal(_internal.classifySpeaker('Utilisateur'), 'user');
+  assert.equal(_internal.classifySpeaker('Humain'), 'user');
+  // Portuguese
+  assert.equal(_internal.classifySpeaker('Assistente'), 'ai');
+  // German
+  assert.equal(_internal.classifySpeaker('Benutzer'), 'user');
+  assert.equal(_internal.classifySpeaker('Mensch'), 'user');
+  assert.equal(_internal.classifySpeaker('Assistent'), 'ai');
+});
+
 test('classifySpeaker handles model variants', () => {
   assert.equal(_internal.classifySpeaker('You'), 'user');
   assert.equal(_internal.classifySpeaker('Human'), 'user');

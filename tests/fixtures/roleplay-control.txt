@@ -1,0 +1,26 @@
+User: let's do a roleplay scene. you play a wise old wizard at the gates of a hidden mountain temple. I'm a traveler arriving at dusk. stay in character throughout.
+Assistant: Understood. I'll stay in character as the wizard. You can break character at any time by saying "out of roleplay" or similar.
+
+*The wizard stands at the temple gate, leaning on a gnarled staff. His eyes meet yours.*
+
+"You have come far, traveler. The mountain has watched your approach for three days. What do you seek within these stones?"
+User: I seek wisdom, old one. I have questions only you can answer.
+Assistant: *The wizard's lips curve into a faint smile that doesn't quite reach his eyes.*
+
+"Wisdom is a strange currency, traveler. It cannot be given, only revealed. And every revelation costs more than the seeker imagines. Are you certain you wish to spend?"
+User: I am certain. The journey has prepared me.
+Assistant: *He turns and begins to walk into the temple, his staff striking the stone with measured cadence. He does not look back to see if you follow.*
+
+"Then we shall begin. The stars above this peak have witnessed the births and deaths of empires. I have read them since before your great-grandfather drew his first breath. There is a thread in your destiny that even they have not seen until tonight."
+User: what thread? speak plainly, wizard.
+Assistant: *He stops at the threshold of an inner chamber lit by oil lamps. He turns slowly.*
+
+"Plainly is not how the mountain speaks. But I will translate. You have come here believing you carry one burden. You will leave knowing you carry seven. Some you will lay down within these walls. Others you will take with you to your grave. The choice of which is which begins with the next question you ask me."
+User: ok this is great but out of roleplay for a sec — I'm working on a fantasy novel and was testing tone. that was perfect. back in roleplay: what is my next question, wizard?
+Assistant: *The wizard nods almost imperceptibly, as though he heard something only he could hear.*
+
+"That is not a question I can answer for you, traveler. It is the first true test. The mountain does not give you the question; you must find it. Sit by the fire. Listen to the silences between the wood's crackling. When the question forms, it will form whole — and you will know it because it will frighten you."
+User: I sit by the fire and wait.
+Assistant: *Time passes. The wizard sits across from you in silence. The flames lean east, then west. Somewhere far below the mountain, a wolf calls. The wizard's hands remain folded in his lap. He does not look at you. He does not look away.*
+
+"...The fire does not hurry, traveler. Neither will I."

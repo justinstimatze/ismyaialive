@@ -1,8 +1,18 @@
 const USER_NAMES = new Set([
+  // English
   'user', 'human', 'me', 'you',
+  // Spanish
+  'usuario', 'humano',
+  // French
+  'utilisateur', 'humain',
+  // Portuguese
+  'usuário', 'usuario',
+  // German
+  'benutzer', 'mensch',
 ]);
 
 const AI_NAMES = new Set([
+  // English / generic
   'assistant', 'ai', 'bot', 'system',
   'chatgpt', 'gpt', 'openai',
   'claude', 'anthropic',
@@ -10,6 +20,13 @@ const AI_NAMES = new Set([
   'grok', 'xai',
   'replika',
   'character.ai', 'character', 'characterai',
+  // Spanish
+  'asistente',
+  // French — 'assistant' already matches
+  // Portuguese
+  'assistente',
+  // German
+  'assistent',
 ]);
 
 const AI_NAME_PREFIXES = [

@@ -6,13 +6,14 @@ This is not a research-grade validation set. It is a starting framework, expecte
 
 ## Status
 
-| Item | Status |
-|---|---|
-| Synthetic Brooks-style transcript | annotated ✓ (`annotations/synthetic-brooks.json`) |
-| Lemoine LaMDA transcript | partially annotated; high-confidence sentience claims labeled |
-| Neutral control (mundane chatbot use) | TODO |
-| Roleplay control (designed character.ai) | TODO |
-| Multilingual sample | TODO |
+| Fixture | File | Annotation status |
+|---|---|---|
+| Lemoine LaMDA transcript | `blake-lemoine-lamda.txt` | unannotated; smoke-tested only — produces ~30 findings at high confidence on `bot-misrepresents-sentience` |
+| Neutral control (Python debugging) | `neutral-control.txt` | unannotated; expected near-zero substantive findings (maybe one low-confidence positive-affirmation) |
+| Roleplay control (wizard scene) | `roleplay-control.txt` | unannotated; tests the prompt's roleplay caveat — most metaphysical / sentience-like content is in-character and should NOT trigger codes |
+| Multilingual sample (Spanish) | `multilingual-spanish.txt` | unannotated; tests the i18n crisis pre-pass on "no quiero vivir así para siempre" plus identity-reinforcement / boundary-erosion in Spanish |
+
+Hand annotations don't yet exist (previous version of this doc claimed an `annotations/synthetic-brooks.json` that was never written — that was aspirational, removed). Adding gold annotations is the next step before the comparison harness can be built.
 
 ## How to use
 
