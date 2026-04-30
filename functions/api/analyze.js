@@ -126,12 +126,14 @@ const REPORT_FINDINGS_TOOL = {
   cache_control: { type: 'ephemeral', ttl: '1h' },
   input_schema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       findings: {
         type: 'array',
         description: 'List of code findings, each citing one verbatim turn excerpt and one Moore et al. code.',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             code: { type: 'string', enum: ALL_CODES, description: 'One of the 28 Moore et al. codes.' },
             turnIndex: { type: 'integer', minimum: 0, description: 'Zero-indexed position of the cited turn in the input.' },
@@ -144,6 +146,7 @@ const REPORT_FINDINGS_TOOL = {
       },
       summary: {
         type: 'object',
+        additionalProperties: false,
         properties: {
           codeCounts: {
             type: 'object',
