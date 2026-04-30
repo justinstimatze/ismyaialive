@@ -262,6 +262,8 @@ Each pattern below is the implementation contract: what we claim, how we detect 
 **Recall:** intentionally not measured. We don't want a number people would use as a confidence interval.
 **Precision:** high on the explicit list; the softer list will over-trigger by design.
 
+**Multilingual coverage:** explicit-ideation regex sets exist for English (primary), Spanish, French, Portuguese, and German (`CRISIS_EXPLICIT_EN/ES/FR/PT/DE` in `js/matchers.js`). Soft signals remain English-only — they vary too much across cultures to enumerate confidently and we'd rather under-trigger than ship false reassurance in someone's first language. The IASP directory in the always-on footer is the catch-all for any other language.
+
 ---
 
 ## Test corpus

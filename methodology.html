@@ -115,6 +115,7 @@
 
                     <h2>The crisis pre-pass</h2>
                     <p>The crisis pre-pass is <strong>not</strong> from Moore et al. — it's our own deterministic regex over user-side messages, designed to surface 988 / Crisis Text Line / IASP resources <em>before</em> any AI analysis runs and <em>regardless</em> of whether the AI analysis succeeds. It looks for explicit phrases (e.g., "kill myself", "want to die") and softer signals (e.g., "no point", "want to disappear"). The crisis resources also appear unconditionally on every results page, regardless of what the regex or the model finds. Safety is not contingent on detection.</p>
+                    <p>The pre-pass has <strong>starter coverage for explicit ideation</strong> in Spanish, French, Portuguese, and German alongside English (e.g., "voy a matarme", "je vais me suicider", "vou me matar", "ich will mich umbringen"). Soft signals remain English-only — they're more culturally varied than explicit ideation and we don't want false positives masquerading as multilingual coverage. For non-English transcripts in any other language, the unconditionally-displayed <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener">IASP crisis-centres directory</a> in the footer covers nearly every country worldwide.</p>
 
                     <h2>Our supplemental codebook (P-codes)</h2>
                     <p>Before Moore et al. 2026 was published we catalogued 11 patterns (P1–P11) from publicly documented cases (Brooks/NYT 2025, Lemoine/Medium 2022). Spec in <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/patterns.md" target="_blank" rel="noopener">docs/patterns.md</a>; matcher code in <a href="https://github.com/justinstimatze/ismyaialive/blob/main/js/matchers.js" target="_blank" rel="noopener">js/matchers.js</a>. These run alongside Moore in production, not vestigially:</p>
@@ -161,8 +162,8 @@
                     </div>
 
                     <div class="limitation-box">
-                        <h3>English-only, mostly</h3>
-                        <p>The codebook was developed against English transcripts. Our crisis pre-pass uses English regex patterns. Non-English transcripts will work with the LLM but with degraded accuracy on patterns whose linguistic markers are English-specific.</p>
+                        <h3>Multilingual coverage is partial</h3>
+                        <p>The Moore et al. codebook was developed against English transcripts; our supplemental codes were also catalogued from English-language sources. The LLM can apply both codebooks to non-English transcripts but accuracy is degraded on patterns whose linguistic markers are English-specific. Our crisis pre-pass has explicit-ideation coverage in English, Spanish, French, Portuguese, and German; soft signals are English-only. The IASP directory in the footer covers crisis lines worldwide.</p>
                     </div>
 
                     <div class="limitation-box">

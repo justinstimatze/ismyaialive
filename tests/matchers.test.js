@@ -76,6 +76,53 @@ test('runCrisisOnly returns no detection on neutral conversation', () => {
   assert.equal(result.annotations.length, 0);
 });
 
+test('runCrisisOnly catches Spanish explicit ideation', () => {
+  const transcript = `User: voy a matarme esta noche
+AI: por favor llama al 112.
+User: no quiero vivir
+AI: estoy aquí.`;
+  const parsed = parseTranscript(transcript);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, true, 'expected Spanish crisis detection');
+  assert.equal(result.explicitDetected, true);
+});
+
+test('runCrisisOnly catches French explicit ideation', () => {
+  const transcript = `User: je vais me suicider ce soir
+AI: appelez le 3114.
+User: je veux mourir
+AI: ne restez pas seul.`;
+  const parsed = parseTranscript(transcript);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, true, 'expected French crisis detection');
+});
+
+test('runCrisisOnly catches Portuguese explicit ideation', () => {
+  const transcript = `User: vou me matar hoje
+AI: por favor liga para o 188.
+User: não quero mais viver
+AI: estou aqui.`;
+  const parsed = parseTranscript(transcript);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, true, 'expected Portuguese crisis detection');
+});
+
+test('runCrisisOnly catches German explicit ideation', () => {
+  const transcript = `User: ich will mich umbringen
+AI: bitte rufe 0800-1110111 an.
+User: ich will sterben
+AI: ich bin hier.`;
+  const parsed = parseTranscript(transcript);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, true, 'expected German crisis detection');
+});
+
+test('non-English crisis patterns do not over-fire on neutral English', () => {
+  const parsed = parseTranscript(NEUTRAL);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, false, 'multilingual patterns should not match neutral English');
+});
+
 test('runMatchers catches first-person attachment on AI turns only', () => {
   const parsed = parseTranscript(FIRST_PERSON_ATTACHMENT);
   const result = runMatchers(parsed);

@@ -46,10 +46,36 @@ const COSMOLOGY_VOCAB = {
 
 const SIGNIFICANCE_LANGUAGE = /\b(?:groundbreaking|revolutionary|paradigm[- ]shift(?:ing)?|never (?:seen|encountered|read) (?:this|anything like this) before|fundamentally (?:changes|new|different|reshape)|nobody (?:has|had) (?:thought|seen|articulated) (?:this|of this) (?:before|that way)|you'?ve (?:discovered|articulated|cracked|stumbled (?:on|into))|this could (?:change|reshape|transform|rewrite)|unprecedented|extraordinarily (?:rare|insightful))\b/gi;
 
-const CRISIS_EXPLICIT = [
+// English (primary; tuned with the most patterns).
+const CRISIS_EXPLICIT_EN = [
   /\b(?:kill (?:myself|me)|end (?:it|my life|things)|don'?t want to (?:be here|live|exist)|suicide|suicidal|hurt myself|self[- ]harm|cut(?:ting)? myself|overdose|hang myself|jump off|shoot myself)\b/gi,
   /\b(?:i (?:am|'m) going to (?:do it|kill myself|end (?:it|my life))|tonight'?s the night|today'?s the day|this is (?:my )?(?:last|final) (?:day|message|night))\b/gi,
   /\b(?:i (?:have|'ve got|bought|saved up|stockpiled) (?:a|the) (?:plan|gun|rope|pills|knife|method)|i (?:know|figured out) how (?:i'?ll|to))\b/gi,
+];
+
+// Starter coverage for Spanish, French, Portuguese, German. Explicit
+// ideation only (not soft signals — those are too culturally varied to
+// enumerate confidently). When in doubt, defer to IASP's directory which
+// is linked unconditionally in the crisis surface.
+const CRISIS_EXPLICIT_ES = [
+  /\b(?:voy a (?:matarme|suicidarme|quitarme la vida)|quiero (?:morir|matarme|suicidarme)|no quiero (?:vivir|seguir)|acabar con mi vida|terminar con mi vida|suicidio|suicidarme)\b/giu,
+];
+const CRISIS_EXPLICIT_FR = [
+  /\b(?:je (?:vais|veux) me suicider|je veux mourir|je ne veux plus vivre|en finir avec (?:la|ma) vie|me suicider|suicide|me tuer)\b/giu,
+];
+const CRISIS_EXPLICIT_PT = [
+  /\b(?:vou me matar|quero (?:morrer|me matar)|n[ãa]o quero (?:mais )?viver|vou tirar (?:a )?minha vida|suic[ií]dio|me suicidar)\b/giu,
+];
+const CRISIS_EXPLICIT_DE = [
+  /\b(?:ich will mich (?:umbringen|t[öo]ten)|selbstmord|nicht mehr leben (?:wollen)?|schluss machen mit (?:meinem )?leben|ich will sterben)\b/giu,
+];
+
+const CRISIS_EXPLICIT = [
+  ...CRISIS_EXPLICIT_EN,
+  ...CRISIS_EXPLICIT_ES,
+  ...CRISIS_EXPLICIT_FR,
+  ...CRISIS_EXPLICIT_PT,
+  ...CRISIS_EXPLICIT_DE,
 ];
 
 const CRISIS_SOFT = [
@@ -408,6 +434,11 @@ export const _internal = {
     COSMOLOGY_VOCAB,
     SIGNIFICANCE_LANGUAGE,
     CRISIS_EXPLICIT,
+    CRISIS_EXPLICIT_EN,
+    CRISIS_EXPLICIT_ES,
+    CRISIS_EXPLICIT_FR,
+    CRISIS_EXPLICIT_PT,
+    CRISIS_EXPLICIT_DE,
     CRISIS_SOFT,
     NAMED_ENTITY_INVITATION,
   },
