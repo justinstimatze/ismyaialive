@@ -1,0 +1,3 @@
+ANTHROPIC_API_KEY=sk-ant-...
+IP_HASH_SECRET=run-`openssl-rand-hex-32`-and-paste-here
+DAILY_BUDGET_USD=5.00

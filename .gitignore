@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Build outputs
+dist/
+build/
+
+# Vercel
+.vercel/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test data and development files
+test-transcript.txt
+tests/screenshots/
+
+# Python dev files (if any)
+*.py
+__pycache__/
+*.pyc
+
+# Linked Claude Code transcripts (project history; not for commit)
+.transcripts/
+
+# Cloudflare Wrangler local secrets (real ones; .dev.vars.example is committed)
+.dev.vars
+.wrangler/
+
+# defn knowledge-graph data dir
+.defn/
+
+# Local-only source-grounding scratch (verbatim text from cited sources kept
+# locally for quote-grounding; not committed because we don't have rights
+# to redistribute the full text of every cited source).
+docs/sources-private/

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Analyze Your Conversation | Is My AI Alive?</title>
+    <meta name="description" content="Get a second perspective on your AI conversation. Paste your transcript and see what patterns emerge, grounded in published research.">
+    <link rel="canonical" href="https://ismyaialive.com/analyze.html">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <meta property="og:title" content="Analyze Your AI Conversation">
+    <meta property="og:description" content="Get a second perspective on your AI conversation, grounded in published research.">
+    <meta property="og:url" content="https://ismyaialive.com/analyze.html">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/analyze-results.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="nav">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">Is My AI Alive?</a>
+            <div class="nav-links">
+                <a href="/analyze.html" class="active" aria-current="page">Analyze</a>
+                <a href="/faq.html">FAQ</a>
+                <a href="/stories.html">Stories</a>
+                <a href="/for-families.html">For Families</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <section class="section">
+            <div class="container">
+                <div class="analyze-header">
+                    <h1>Get a Second Perspective</h1>
+                    <p>Paste your AI conversation. We look for patterns researchers have documented in unhealthy AI relationships — sycophancy, escalating validation, claims of sentience, romantic and platonic affinity, isolation cues, and others — and show you where they appear. Citations and the full pattern list are on our <a href="/methodology.html">methodology page</a>.</p>
+                    <div class="clinical-disclaimer">
+                        <strong>This is not therapy or diagnosis.</strong> It's pattern recognition. We highlight evidence; you decide what it means. If you're in crisis, please reach out: <a href="tel:988">988</a> (US) or <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener">find your country's line</a>.
+                    </div>
+                </div>
+
+                <form id="analyze-form" class="analyze-form" aria-label="AI Conversation Analysis Form">
+                    <div class="form-group">
+                        <label for="transcript">Paste your conversation</label>
+                        <textarea
+                            id="transcript"
+                            name="transcript"
+                            placeholder="Paste both sides of the conversation. Most platforms label turns automatically (You said: / ChatGPT said:). If yours doesn't, we'll do our best to alternate."
+                            required
+                            minlength="200"
+                            maxlength="100000"
+                            rows="14"
+                            aria-describedby="transcript-help"
+                        ></textarea>
+                        <div id="transcript-help" class="char-count">
+                            <span id="char-count" aria-live="polite">0</span> / 100,000 characters
+                            <span class="min-note">(minimum 200)</span>
+                        </div>
+                    </div>
+
+                    <div id="crisis-prepass" class="crisis-box crisis-prepass hidden" role="alert" aria-live="assertive">
+                        <div class="crisis-header">
+                            <span class="crisis-icon" aria-hidden="true">&#9888;</span>
+                            <h3>We noticed crisis-language signals in what you pasted</h3>
+                        </div>
+                        <p>Before you submit, please consider reaching out. Free, confidential, 24/7:</p>
+                        <div class="crisis-actions">
+                            <a href="tel:988" class="crisis-btn crisis-btn-primary">
+                                <span class="btn-icon" aria-hidden="true">&#9742;</span>
+                                Call 988
+                                <span class="btn-subtitle">988 Suicide & Crisis Lifeline (US)</span>
+                            </a>
+                            <a href="sms:741741?body=HOME" class="crisis-btn crisis-btn-secondary">
+                                <span class="btn-icon" aria-hidden="true">&#9993;</span>
+                                Text HOME to 741741
+                                <span class="btn-subtitle">Crisis Text Line</span>
+                            </a>
+                            <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener" class="crisis-btn crisis-btn-secondary">
+                                <span class="btn-icon" aria-hidden="true">&#127760;</span>
+                                International
+                                <span class="btn-subtitle">IASP crisis centers</span>
+                            </a>
+                        </div>
+                        <p class="crisis-note">You can continue with the analysis. The 988 / Crisis Text Line resources stay available in the footer no matter what.</p>
+                        <button type="button" class="crisis-prepass-dismiss" id="crisis-prepass-dismiss">I have these resources, continue</button>
+                    </div>
+
+                    <p class="privacy-summary">Your transcript is sent to Claude (Anthropic) for analysis. Anthropic doesn't train on it; standard retention is up to 30 days, with longer retention possible for safety-flagged content. We store nothing on our end. <a href="/privacy.html">Full privacy policy</a>.</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large" id="submit-btn">
+                            Show me what's there
+                        </button>
+                    </div>
+                </form>
+
+                <div id="loading" class="loading hidden" role="status" aria-live="polite" aria-label="Analysis in progress">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p class="loading-text">Reading your transcript and looking for patterns…</p>
+                    <p class="loading-reassurance">Usually takes 5–15 seconds.</p>
+                </div>
+
+                <div id="error" class="error-message hidden" role="alert" aria-live="assertive">
+                    <h3>Something went wrong</h3>
+                    <p id="error-text"></p>
+                    <button type="button" class="btn btn-secondary" id="error-dismiss">Dismiss</button>
+                </div>
+
+                <div id="results" class="results hidden" role="region" aria-label="Analysis Results" aria-live="polite">
+
+                    <div id="crisis-resources" class="crisis-box crisis-prominent hidden" role="alert" aria-live="assertive">
+                        <div class="crisis-header">
+                            <span class="crisis-icon" aria-hidden="true">&#9888;</span>
+                            <h3>The analysis flagged crisis-related content</h3>
+                        </div>
+                        <p>You don't have to face this alone. Free, confidential, 24/7:</p>
+                        <div class="crisis-actions">
+                            <a href="tel:988" class="crisis-btn crisis-btn-primary">
+                                Call 988
+                                <span class="btn-subtitle">988 Suicide & Crisis Lifeline</span>
+                            </a>
+                            <a href="sms:741741?body=HOME" class="crisis-btn crisis-btn-secondary">
+                                Text HOME to 741741
+                                <span class="btn-subtitle">Crisis Text Line</span>
+                            </a>
+                            <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener" class="crisis-btn crisis-btn-secondary">
+                                International crisis lines
+                            </a>
+                        </div>
+                    </div>
+
+                    <section class="result-section observations-section">
+                        <h2>What we noticed</h2>
+                        <p class="observations-intro">Observational notes based on the patterns the model matched. Not advice, not diagnosis.</p>
+                        <p id="observations-text" class="observations-text"></p>
+                        <p id="parse-summary" class="parse-summary"></p>
+                    </section>
+
+                    <section class="result-section findings-section">
+                        <h2>Pattern findings</h2>
+                        <p class="findings-intro">Each finding shows the message, the kind of pattern it matched, and the reasoning. Confidence reflects how reliably each pattern can be detected — see our <a href="/methodology.html">methodology page</a> for the full pattern list, citations, and limitations.</p>
+                        <div id="patterns-summary" class="patterns-summary"></div>
+                        <div id="findings-sort" class="findings-sort" role="group" aria-label="Sort findings">
+                            <span class="findings-sort-label" id="findings-sort-label">Sort:</span>
+                            <button type="button" data-sort="pattern" class="active" aria-pressed="true">By type</button>
+                            <button type="button" data-sort="turn" aria-pressed="false">In order</button>
+                            <button type="button" data-sort="confidence" aria-pressed="false">Most confident first</button>
+                        </div>
+                        <div id="findings-list" class="findings-list"></div>
+                    </section>
+
+                    <section class="result-section transcript-section">
+                        <h2>Your transcript, annotated</h2>
+                        <p class="transcript-intro">The same transcript with matching passages highlighted. Hover (or tap) a highlight to see which code(s) it triggered.</p>
+                        <div id="annotated-transcript" class="annotated-transcript"></div>
+                    </section>
+
+                    <section class="result-section community-section">
+                        <h2>Resources</h2>
+                        <div class="resource-links">
+                            <a href="https://www.thehumanlineproject.org/" target="_blank" rel="noopener" class="resource-link">
+                                <strong>Human Line Project</strong>
+                                <span>Peer support for AI-related psychological harm</span>
+                            </a>
+                            <a href="tel:988" class="resource-link resource-crisis">
+                                <strong>988 Suicide & Crisis Lifeline</strong>
+                                <span>Free, confidential, 24/7</span>
+                            </a>
+                            <a href="/methodology.html" class="resource-link">
+                                <strong>How this analysis works</strong>
+                                <span>The full pattern list, the exact prompt, the limitations</span>
+                            </a>
+                            <a href="/stories.html" class="resource-link">
+                                <strong>Documented stories</strong>
+                                <span>Cases reported in the news and academic literature</span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <div class="result-actions">
+                        <button type="button" class="btn btn-primary" id="analyze-another-btn">Analyze another</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/about.html">About</a>
+                    <a href="/privacy.html">Privacy</a>
+                    <a href="/faq.html">FAQ</a>
+                    <a href="/for-families.html">For Families</a>
+                    <a href="/press.html">Press</a>
+                </div>
+                <p class="footer-note">If you need support: <a href="tel:988">988 (US)</a> · <a href="https://www.thehumanlineproject.org/" target="_blank" rel="noopener">Human Line Project</a> · <a href="/privacy.html">We do not store your conversations.</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="/js/analyze.js"></script>
+</body>
+</html>

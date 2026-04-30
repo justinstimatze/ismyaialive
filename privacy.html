@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Privacy Policy | Is My AI Alive?</title>
+    <meta name="description" content="Our privacy policy. We do not store your conversations or track you.">
+    <link rel="canonical" href="https://ismyaialive.com/privacy.html">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <meta property="og:title" content="Privacy Policy - Is My AI Alive?">
+    <meta property="og:description" content="Our privacy policy. We do not store your conversations or track you.">
+    <meta property="og:url" content="https://ismyaialive.com/privacy.html">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="nav">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">Is My AI Alive?</a>
+            <div class="nav-links">
+                <a href="/analyze.html">Analyze</a>
+                <a href="/faq.html">FAQ</a>
+                <a href="/stories.html">Stories</a>
+                <a href="/for-families.html">For Families</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <section class="section">
+            <div class="container content-page">
+                <h1>Privacy Policy</h1>
+                <p class="intro">We believe privacy is a fundamental right. Here's exactly what we do and don't do with your data.</p>
+
+                <div class="privacy-content">
+                    <h2>The Short Version</h2>
+                    <ul class="privacy-highlights">
+                        <li><strong>We do NOT store your conversation transcripts.</strong> They are processed in real-time and immediately discarded.</li>
+                        <li><strong>We do NOT create accounts or track users.</strong> There's no login, no cookies for tracking, no user profiles.</li>
+                        <li><strong>We do NOT sell any data.</strong> We have no advertising and no data monetization.</li>
+                        <li><strong>We do NOT log your transcript content.</strong> Only metadata (timestamp, platform selected, transcript length) is logged for basic analytics.</li>
+                    </ul>
+
+                    <h2>What We Collect</h2>
+
+                    <h3>When you analyze a conversation</h3>
+                    <p>When you submit a transcript for analysis, here's exactly what happens:</p>
+                    <ol>
+                        <li>Your transcript is sent to our server over an encrypted (HTTPS) connection</li>
+                        <li>We send the transcript to Claude (Anthropic's AI) for analysis</li>
+                        <li>Claude returns the analysis results</li>
+                        <li>We send the results back to you</li>
+                        <li>The transcript is discarded from memory—it is never saved to disk or database</li>
+                    </ol>
+
+                    <p>What we <strong>store ourselves</strong> (in Cloudflare KV, with TTLs that auto-expire):</p>
+                    <ul>
+                        <li><strong>Rate-limit counters</strong>: a per-minute, per-hour, per-day counter keyed by an HMAC-SHA256 hash of your IP address salted with the current UTC date and a server-held secret. Counter entries auto-expire within 25 hours. The HMAC is collision-resistant; while the secret is held by the operator, the hash for a known IP on a given day can be re-derived. The site does not retain past days' hashes — they expire with the counters they key.</li>
+                        <li><strong>Daily cost meter</strong>: total Anthropic API spend so far today (a single number). Auto-expires after 25 hours.</li>
+                    </ul>
+
+                    <p>What we <strong>never</strong> store:</p>
+                    <ul>
+                        <li>The content of your transcript (the request body is read once, sent to Anthropic, and discarded)</li>
+                        <li>The content of the analysis (returned to you and discarded)</li>
+                        <li>Your IP address in unhashed form</li>
+                        <li>Account, session, or any cross-request identifiers</li>
+                    </ul>
+
+                    <p>What <strong>Cloudflare</strong> (our hosting and CDN) maintains independently of our code, as part of standard edge logging for security and abuse prevention:</p>
+                    <ul>
+                        <li>IP address, user agent, timestamp, request path, response status</li>
+                        <li>These are Cloudflare's standard server logs, retained per <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>. They include metadata for any request to our domain but never the request body.</li>
+                    </ul>
+
+                    <h3>When you visit our site</h3>
+                    <p>We do not deploy any JavaScript analytics beacon, tracking pixel, or third-party script on any page. The only analytics we have is the <strong>aggregate server-side traffic count</strong> Cloudflare derives from its standard edge access logs (IP, user agent, timestamp, request path, response status) — no JavaScript, no cookies, no per-visitor identifier, no fingerprinting. Logs are retained per <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>; we see only aggregate counts in our dashboard.</p>
+
+                    <h2>Third Parties</h2>
+
+                    <h3>Anthropic (Claude API)</h3>
+                    <p>Your transcript is sent to Anthropic's Claude API for analysis. <strong>Important details about Anthropic's data handling:</strong></p>
+                    <ul>
+                        <li>Anthropic states they do not use API inputs to train their models</li>
+                        <li>By default, Anthropic retains API data for up to 30 days for abuse detection and safety monitoring</li>
+                        <li>If Anthropic's safety systems flag content, retention may extend up to 2 years (or longer where required by law). Crisis-language transcripts may be more likely to be flagged than neutral content.</li>
+                        <li>We have no control over Anthropic's data retention or flagging practices</li>
+                        <li>See <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic's Privacy Policy</a> and <a href="https://docs.anthropic.com/en/docs/data-privacy" target="_blank" rel="noopener">API Data Privacy documentation</a> for full details</li>
+                    </ul>
+                    <p class="privacy-note"><em>If you're concerned about this, you may want to remove personally identifiable information from your transcript before submitting.</em></p>
+
+                    <h3>Cloudflare (Hosting & CDN)</h3>
+                    <p>Our site is served through Cloudflare. Cloudflare processes standard server logs (IP, user agent, request path) for security and abuse-prevention purposes. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's Privacy Policy</a> for details.</p>
+
+                    <h2>Data Retention</h2>
+                    <p>Because we don't store your transcript or personal information, there's nothing to retain or delete. Any anonymous analytics data (page views) is retained by Cloudflare according to their standard policy.</p>
+
+                    <h2>Your Rights</h2>
+                    <p>Because we don't collect personal data, most data rights (access, deletion, portability) don't apply. However:</p>
+                    <ul>
+                        <li>You can use our site without providing any personal information</li>
+                        <li>You can use browser privacy tools (incognito mode, VPN) for additional privacy</li>
+                        <li>If you have questions about your privacy, contact us</li>
+                    </ul>
+
+                    <h2>Who operates this site</h2>
+                    <p>The data controller is <strong>Justin Stimatze</strong>, an independent operator based in the United States. Contact: <a href="mailto:hello@ismyaialive.com">hello@ismyaialive.com</a>. The site is not operated by, partnered with, or commercially affiliated with Anthropic, OpenAI, Google, or any other AI lab. There is no commercial entity behind it; no DPO is appointed because the site is non-commercial and processes no persistent personal data.</p>
+
+                    <h3>Anthropic data-processing relationship</h3>
+                    <p>Anthropic acts as a processor for the limited purpose of generating analysis findings on transcripts you submit. Anthropic publishes a <a href="https://www.anthropic.com/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> covering this relationship at scale; we operate under Anthropic's standard API terms and the privacy commitments referenced in their <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">privacy policy</a> and <a href="https://docs.anthropic.com/en/docs/data-privacy" target="_blank" rel="noopener">API data-privacy documentation</a>. Cross-border transfers from EU/UK users to Anthropic (US) rely on Anthropic's Standard Contractual Clauses, which they publish.</p>
+
+                    <h2>International Users & GDPR</h2>
+                    <p>For users in the European Union, United Kingdom, and other jurisdictions with data protection laws:</p>
+                    <ul>
+                        <li><strong>Legal basis:</strong> We process your transcript data based on your consent (by submitting the form) for the purpose of providing analysis</li>
+                        <li><strong>Data minimization:</strong> We only collect what's necessary to provide the analysis</li>
+                        <li><strong>No retention:</strong> We don't store your transcript, so there's nothing to delete. The data exists only during processing.</li>
+                        <li><strong>Third-party transfer:</strong> Your transcript is sent to Anthropic (US-based) for analysis. This constitutes an international data transfer. Anthropic maintains standard contractual clauses for data protection.</li>
+                        <li><strong>Right to object:</strong> You can object by simply not using the service</li>
+                    </ul>
+                    <p>Because we don't retain personal data and don't create user accounts, we cannot respond to data access or deletion requests—there's no data to access or delete.</p>
+
+                    <h2>Security</h2>
+                    <ul>
+                        <li>All data transmission uses HTTPS encryption</li>
+                        <li>We don't store sensitive data, eliminating database breach risks</li>
+                        <li>Our serverless architecture minimizes attack surface</li>
+                        <li>API keys are stored securely as environment variables</li>
+                    </ul>
+
+                    <h2>Children</h2>
+                    <p>This service is not intended for children under 13. We do not knowingly collect information from children under 13.</p>
+
+                    <h2>Changes to This Policy</h2>
+                    <p>If we make significant changes to this policy, we'll update the date below and add a notice to the site. Minor clarifications may be made without notice.</p>
+
+                    <h2>Contact</h2>
+                    <p>Questions about privacy? Contact us at <a href="mailto:hello@ismyaialive.com">hello@ismyaialive.com</a></p>
+
+                    <p class="policy-date"><strong>Last updated:</strong> April 2026.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/about.html">About</a>
+                    <a href="/privacy.html">Privacy</a>
+                    <a href="/faq.html">FAQ</a>
+                    <a href="/for-families.html">For Families</a>
+                    <a href="/press.html">Press</a>
+                </div>
+                <p class="footer-note">If you need support: <a href="tel:988">988 (US)</a> · <a href="https://www.thehumanlineproject.org/" target="_blank" rel="noopener">Human Line Project</a> · <a href="/privacy.html">We do not store your conversations.</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

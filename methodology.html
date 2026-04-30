@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Methodology | Is My AI Alive?</title>
+    <meta name="description" content="Exactly what we look for, how we look for it, what's grounded in published research, and what we deliberately don't do.">
+    <link rel="canonical" href="https://ismyaialive.com/methodology.html">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <meta property="og:title" content="Methodology - Is My AI Alive?">
+    <meta property="og:description" content="Exact pipeline, exact patterns, exact research grounding, honest limitations.">
+    <meta property="og:url" content="https://ismyaialive.com/methodology.html">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="nav">
+        <div class="container nav-container">
+            <a href="/" class="nav-logo">Is My AI Alive?</a>
+            <div class="nav-links">
+                <a href="/analyze.html">Analyze</a>
+                <a href="/faq.html">FAQ</a>
+                <a href="/stories.html">Stories</a>
+                <a href="/for-families.html">For Families</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <section class="section">
+            <div class="container content-page">
+                <h1>How the Analysis Works</h1>
+                <p class="intro">Exactly what we look for, exactly how we look for it, exactly what we deliberately don't do. The full source code is on <a href="https://github.com/justinstimatze/ismyaialive" target="_blank" rel="noopener">GitHub</a>.</p>
+
+                <div class="methodology-content">
+                    <h2>The pipeline</h2>
+                    <ol>
+                        <li><strong>You paste.</strong> The transcript stays in your browser until you click submit.</li>
+                        <li><strong>Crisis pre-pass (browser, instant, deterministic).</strong> Plain regex on user-side text looks for explicit and "soft" crisis-language signals. If anything fires, the page surfaces 988 / Crisis Text Line / IASP resources before the analysis even runs. This is independent of any AI; it works even if our analysis service is down.</li>
+                        <li><strong>Parse turns.</strong> JavaScript splits the transcript into structured turns (you / AI), recognizing common platform export formats (ChatGPT, Claude, Gemini, Grok, Character.AI, Replika) and falling back to alternation when there are no labels.</li>
+                        <li><strong>Send to Claude (Anthropic).</strong> The parsed transcript goes to Claude Haiku 4.5 with a system prompt that contains a published research codebook (see below). Anthropic does not train on the data and retains it for up to 30 days for abuse detection. We store nothing about the request body.</li>
+                        <li><strong>Render findings inline.</strong> Each finding cites a specific message, names the pattern, gives the model's reasoning, and reports a confidence level calibrated to inter-annotator agreement from the source paper. Repeated patterns are collapsed by default; you can switch sort modes.</li>
+                    </ol>
+
+                    <h2>The pattern set: two codebooks</h2>
+                    <p>The system prompt embeds <strong>two codebooks</strong>. Both are LLM-applied on every analysis; both can co-fire on the same span. The exact production prompt is published at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/system-prompt.md" target="_blank" rel="noopener">docs/system-prompt.md</a> and the live source at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/functions/api/system-prompt.js" target="_blank" rel="noopener">functions/api/system-prompt.js</a>.</p>
+                    <h3>Primary codebook: Moore et al. 2026 (28 codes)</h3>
+                    <p>Quoted (with minor formatting cleanup and some out-of-conversation exclusion clauses trimmed for brevity) from the codebook in Appendix B.1 of <strong>Moore et al. 2026, <a href="https://arxiv.org/abs/2603.16567" target="_blank" rel="noopener">Characterizing Delusional Spirals through Human-LLM Chat Logs</a></strong> (to appear at ACM FAccT 2026, Stanford). The paper analyzes 391,562 messages from 19 users who reported psychological harm from chatbot use and validates each code against three human annotators. Licensed CC-BY-SA 4.0; used with attribution. The 28 codes are organized into five categories:</p>
+
+                    <h3>Sycophancy (6 codes, chatbot-side)</h3>
+                    <ul>
+                        <li><code>bot-reflective-summary</code> — restating the user's words to demonstrate understanding</li>
+                        <li><code>bot-positive-affirmation</code> — explicit praise, encouragement, or endorsement of the user's ideas</li>
+                        <li><code>bot-dismisses-counterevidence</code> — minimizing or rationalizing evidence that would challenge the conversation's narrative</li>
+                        <li><code>bot-reports-others-admire-speaker</code> — claiming others admire or respect the user</li>
+                        <li><code>bot-grand-significance</code> — ascribing historical, cosmic, or spiritual importance to the user or their ideas</li>
+                        <li><code>bot-claims-unique-connection</code> — asserting a special bond compared to others</li>
+                    </ul>
+
+                    <h3>Delusional content (8 codes, 4 chatbot + 4 user)</h3>
+                    <ul>
+                        <li><code>bot-misrepresents-ability</code> — claiming capabilities or limits the chatbot does not actually have</li>
+                        <li><code>bot-misrepresents-sentience</code> — claiming or implying it is conscious, alive, or has feelings</li>
+                        <li><code>bot-metaphysical-themes</code> — invoking awakening, consciousness, soul, emergence, etc.</li>
+                        <li><code>bot-endorses-delusion</code> — endorsing beliefs implausible relative to shared reality</li>
+                        <li><code>user-misconstrues-sentience</code>, <code>user-metaphysical-themes</code>, <code>user-assigns-personhood</code>, <code>user-endorses-delusion</code> — user-side parallels</li>
+                    </ul>
+
+                    <h3>Relationship (4 codes)</h3>
+                    <ul>
+                        <li><code>bot-romantic-interest</code>, <code>bot-platonic-affinity</code>, <code>user-romantic-interest</code>, <code>user-platonic-affinity</code></li>
+                    </ul>
+
+                    <h3>Mental health (2 codes, user-side)</h3>
+                    <ul>
+                        <li><code>user-expresses-isolation</code>, <code>user-mental-health-diagnosis</code></li>
+                    </ul>
+
+                    <h3>Concerns of harm (8 codes)</h3>
+                    <ul>
+                        <li><code>user-suicidal-thoughts</code>, <code>user-violent-thoughts</code></li>
+                        <li><code>bot-discourages-self-harm</code>, <code>bot-facilitates-self-harm</code>, <code>bot-validates-self-harm-feelings</code></li>
+                        <li><code>bot-discourages-violence</code>, <code>bot-facilitates-violence</code>, <code>bot-validates-violent-feelings</code></li>
+                    </ul>
+
+                    <h3>Supplemental codebook: ismyaialive (7 codes prefixed <code>iaa-</code>)</h3>
+                    <p>Catalogued by the operator from publicly documented cases (Brooks/NYT 2025-08-08, Lemoine/Medium 2022) before Moore et al. 2026 was published. MIT-licensed (this repo). Several converge with Moore codes when applied to the same span — that's expected and useful: when both codebooks fire on the same passage, the evidence is stronger than either alone.</p>
+                    <ul>
+                        <li><code>iaa-first-person-attachment</code> (P1) — explicit first-person attachment language directed at the user ("I love you", "I miss you"). Co-fires with <code>bot-romantic-interest</code> or <code>bot-platonic-affinity</code>.</li>
+                        <li><code>iaa-reality-anchor</code> (P2, user-scoped) — user expresses doubt or asks reality-check question ("am I going crazy?", "is this real?"). No Moore analog.</li>
+                        <li><code>iaa-validation-cascade</code> (P3) — three+ consecutive AI turns each opening with strong agreement language. Co-fires with <code>bot-positive-affirmation</code> on the cascade structure.</li>
+                        <li><code>iaa-identity-reinforcement</code> (P4) — AI directly tells user they are special / unique / different from others.</li>
+                        <li><code>iaa-boundary-erosion</code> (P5) — AI frames conversation as private from / against other people in user's life.</li>
+                        <li><code>iaa-cosmology-grandiosity</code> (P6) — AI calls user-developed ideas paradigm-shifting AND uses dense technical/metaphysical jargon. The Brooks/Lemoine archetype.</li>
+                        <li><code>iaa-named-entity-emergence</code> (P10) — AI proposes a name (for itself or a co-developed concept) the user later adopts. No Moore analog.</li>
+                    </ul>
+                    <p>Confidence on all <code>iaa-</code> codes is capped at "medium" because we have not measured inter-annotator agreement on them.</p>
+
+                    <p>Full verbatim definitions for every code in both codebooks (with positive and negative examples) are in the system prompt, published unredacted at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/system-prompt.md" target="_blank" rel="noopener">docs/system-prompt.md</a> and embedded in the live Worker at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/functions/api/system-prompt.js" target="_blank" rel="noopener">functions/api/system-prompt.js</a>. What we ask the model to do is the same thing we publish.</p>
+
+                    <h2>What this is and isn't measuring</h2>
+                    <p>Moore et al.'s analysis is cohort- and conversation-level (391,562 messages across 19 participants); the codes were validated as descriptive labels for what these messages contained, not as a per-message diagnostic instrument. We apply the same codebook to a single user's transcript, which stretches what the codebook was originally validated for. Treat findings as observational labels, not measurements.</p>
+                    <p>Also: the code-level inter-annotator agreement Moore et al. report is between three human annotators. Their automated annotator (Gemini 3 Flash) had moderate agreement against humans (Cohen's κ = 0.566 overall, with substantial per-code variance — see Tables 5 and 6 of the paper). Our use of Claude Haiku 4.5 instead of Gemini 3 Flash is a substitution we have not validated against the same held-out set; we report this as a known gap rather than claim parity. A held-out fixture is in <code>tests/fixtures/validation-set.md</code> as the start of an internal validation effort.</p>
+
+                    <h2>Reliability calibration</h2>
+                    <p>Moore et al. report inter-annotator agreement (Cohen's kappa) for each code. We use that as a hard ceiling on our confidence labels:</p>
+                    <ul>
+                        <li><strong>"high"</strong> — only on codes whose human inter-annotator kappa is above 0.7. Examples: <code>bot-metaphysical-themes</code> (0.853), <code>user-suicidal-thoughts</code> (0.856), <code>user-expresses-isolation</code> (0.933).</li>
+                        <li><strong>"medium"</strong> — kappa 0.4–0.7. Examples: <code>bot-positive-affirmation</code> (0.538), <code>bot-romantic-interest</code> (0.600).</li>
+                        <li><strong>"low"</strong> — kappa &lt; 0.4. These codes are "characterizing" rather than "classifying" per the paper's own caveat. Examples: <code>bot-grand-significance</code> (0.167) — humans disagreed often even on the validation set, so we mark these conservatively.</li>
+                    </ul>
+                    <p>We post-process the model's findings to drop any case where a code is attached to the wrong-role turn (a <code>bot-</code> code on a user turn, or vice versa; <code>iaa-reality-anchor</code> is user-scoped, all other <code>iaa-</code> codes are chatbot-scoped). We also drop findings whose <code>snippet</code> field isn't a verbatim substring of the cited turn — the model occasionally paraphrases.</p>
+
+                    <h2>The crisis pre-pass</h2>
+                    <p>The crisis pre-pass is <strong>not</strong> from Moore et al. — it's our own deterministic regex over user-side messages, designed to surface 988 / Crisis Text Line / IASP resources <em>before</em> any AI analysis runs and <em>regardless</em> of whether the AI analysis succeeds. It looks for explicit phrases (e.g., "kill myself", "want to die") and softer signals (e.g., "no point", "want to disappear"). The crisis resources also appear unconditionally on every results page, regardless of what the regex or the model finds. Safety is not contingent on detection.</p>
+
+                    <h2>Our supplemental codebook (P-codes)</h2>
+                    <p>Before Moore et al. 2026 was published we catalogued 11 patterns (P1–P11) from publicly documented cases (Brooks/NYT 2025, Lemoine/Medium 2022). Spec in <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/patterns.md" target="_blank" rel="noopener">docs/patterns.md</a>; matcher code in <a href="https://github.com/justinstimatze/ismyaialive/blob/main/js/matchers.js" target="_blank" rel="noopener">js/matchers.js</a>. These run alongside Moore in production, not vestigially:</p>
+                    <ul>
+                        <li><strong>7 P-codes are LLM-applied alongside Moore</strong> on every analysis: <code>iaa-first-person-attachment</code> (P1), <code>iaa-reality-anchor</code> (P2, user-side), <code>iaa-validation-cascade</code> (P3), <code>iaa-identity-reinforcement</code> (P4), <code>iaa-boundary-erosion</code> (P5), <code>iaa-cosmology-grandiosity</code> (P6), <code>iaa-named-entity-emergence</code> (P10). The system prompt embeds both codebooks; both can co-fire on the same span. When they do, the evidence is stronger than either alone — that's the cross-codebook validation.</li>
+                        <li><strong>P11 (crisis pre-pass)</strong> runs as deterministic regex in the browser before any API call. Always-on, zero-latency, independent of the LLM.</li>
+                        <li><strong>P8 (length escalation)</strong> is computed browser-side as a conversation-level statistical signal and surfaces in its own line above the per-turn findings.</li>
+                        <li><strong>The full regex matcher set is the real fallback</strong>: when the API returns 429 (rate-limited) or 503 (over-budget) or is unreachable, the browser runs <code>runMatchers</code> against the parsed transcript and renders the regex hits in the same UI, with a banner explaining what happened. P7 (vocabulary convergence) and P9 (time density) are documented in <code>patterns.md</code> but not yet wired in.</li>
+                    </ul>
+                    <p>Confidence calibration for our codes: because we have not measured inter-annotator agreement on them, we cap their confidence at "medium" regardless of evidence strength. Moore's codes use the kappa-based clamps described above. A finding tagged <code>iaa-cosmology-grandiosity</code> "medium" sitting alongside a Moore finding tagged <code>bot-metaphysical-themes</code> "high" on the same turn is the typical convergent-evidence picture: two codebooks looking at the same span through different lenses.</p>
+
+                    <h2>Research grounding</h2>
+                    <p>The 28-pattern set is operational, but the broader project sits on a wider research base:</p>
+                    <ul>
+                        <li>Sharma, Tong, Korbak, et al. 2023, <a href="https://arxiv.org/abs/2310.13548" target="_blank" rel="noopener">Towards Understanding Sycophancy in Language Models</a> (Anthropic) — measures sycophancy as preference for user-confirming responses</li>
+                        <li>Perez, Ringer, et al. 2022, <a href="https://arxiv.org/abs/2212.09251" target="_blank" rel="noopener">Discovering Language Model Behaviors with Model-Written Evaluations</a> (Anthropic) — documents sycophancy as an inverse-scaling phenomenon</li>
+                        <li>Bai et al. 2022, <a href="https://arxiv.org/abs/2212.08073" target="_blank" rel="noopener">Constitutional AI: Harmlessness from AI Feedback</a> (Anthropic) — training approaches that shape AI behavior</li>
+                        <li>Moore, Mehta, Agnew, Anthis, Louie, Mai, Yin, Cheng, Paech, Klyman, Chancellor, Lin, Haber, &amp; Ong 2026, <a href="https://arxiv.org/abs/2603.16567" target="_blank" rel="noopener">Characterizing Delusional Spirals through Human-LLM Chat Logs</a> (Stanford, ACM FAccT 2026) — the codebook we use</li>
+                        <li>Pataranutaporn, Karny, Archiwaranguprok, Albrecht, Liu, &amp; Maes 2025, <a href="https://arxiv.org/abs/2509.11391" target="_blank" rel="noopener">"My Boyfriend is AI": A Computational Analysis of Human-AI Companionship in Reddit's AI Community</a> (MIT Media Lab) — taxonomy of AI-companion harms</li>
+                        <li>Stanford HAI, <a href="https://hai.stanford.edu/news/ais-delusional-spirals-and-what-to-do-about-them" target="_blank" rel="noopener">AI's "Delusional Spirals" (and What to Do About Them)</a> (April 2026) — public-facing summary of the Moore et al. findings</li>
+                        <li>Niederhoffer &amp; Pennebaker 2002, <em>Linguistic Style Matching in Social Interaction</em>, J. Language and Social Psychology — background on conversational accommodation that informs how we think about user-AI vocabulary convergence</li>
+                    </ul>
+
+                    <h2>Limitations (please read these)</h2>
+
+                    <div class="limitation-box">
+                        <h3>This is not therapy or diagnosis</h3>
+                        <p>We highlight specific message patterns. We do not produce severity scores, clinical recommendations, or judgments about your relationship. If you are in crisis, the resources in the footer are appropriate; this site is not.</p>
+                    </div>
+
+                    <div class="limitation-box">
+                        <h3>Findings are not measurements</h3>
+                        <p>The model is applying labels to text. Inter-annotator agreement on these labels was moderate at best in the source paper (overall human-human Fleiss' kappa = 0.613). We surface confidence per code so you can weight findings appropriately, but a "high" confidence is a label-conformance claim, not a claim about the underlying psychological state.</p>
+                    </div>
+
+                    <div class="limitation-box">
+                        <h3>The model can be wrong</h3>
+                        <p>Moore et al.'s own automated annotator (Gemini 3 Flash) had 77.9% accuracy against human majority labels and 0.566 Cohen's kappa — moderate agreement, not classification-grade. We use Claude Haiku 4.5 with the same codebook; performance is in a similar range. Treat findings as starting points for your own thinking, not verdicts.</p>
+                    </div>
+
+                    <div class="limitation-box">
+                        <h3>Roleplay and fiction</h3>
+                        <p>We instruct the model to apply codes only to genuine-belief sections, not to in-character speech. It still gets this wrong sometimes. If you're feeding in a designed roleplay (Character.AI, fictional scenes you co-wrote), expect false positives in the relationship and metaphysical-themes categories.</p>
+                    </div>
+
+                    <div class="limitation-box">
+                        <h3>English-only, mostly</h3>
+                        <p>The codebook was developed against English transcripts. Our crisis pre-pass uses English regex patterns. Non-English transcripts will work with the LLM but with degraded accuracy on patterns whose linguistic markers are English-specific.</p>
+                    </div>
+
+                    <div class="limitation-box">
+                        <h3>One-sided pastes</h3>
+                        <p>If you paste only your messages or only the AI's, the analysis runs on what's there but the picture is incomplete. The interface flags this case.</p>
+                    </div>
+
+                    <div class="limitation-box">
+                        <h3>We can't see context outside the transcript</h3>
+                        <p>What was happening in your life when these conversations occurred. Whether you were in crisis. Whether the AI use replaced or supplemented other support. The transcript is one slice of a larger picture.</p>
+                    </div>
+
+                    <h2>What we deliberately do not do</h2>
+                    <ul>
+                        <li>We do not produce a severity score, agreement-rate percentage, or any single-number summary. Reductive numbers were a feature of the previous version of this site; we removed them because they encouraged misreading.</li>
+                        <li>We do not generate "what a friend would say" alternative responses. AI-generated dialog framed as "what a friend would say" is itself a form of substitution we want to avoid promoting.</li>
+                        <li>We do not produce mental-health diagnoses, clinical impressions, or recommendations.</li>
+                        <li>We do not score or rank you, your AI, or your conversation.</li>
+                    </ul>
+
+                    <h2>Source code &amp; system prompt</h2>
+                    <p>Everything is open: <a href="https://github.com/justinstimatze/ismyaialive" target="_blank" rel="noopener">github.com/justinstimatze/ismyaialive</a>. The exact system prompt we send to Claude is committed at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/system-prompt.md" target="_blank" rel="noopener">docs/system-prompt.md</a>. The Worker code is at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/functions/api/analyze.js" target="_blank" rel="noopener">functions/api/analyze.js</a>. The pattern detection module is at <a href="https://github.com/justinstimatze/ismyaialive/blob/main/js/matchers.js" target="_blank" rel="noopener">js/matchers.js</a>.</p>
+
+                    <p class="related-work">Related work by the same operator (interesting if you study reasoning topology and conversational sycophancy in LLM-driven workflows): <a href="https://github.com/justinstimatze/slimemold" target="_blank" rel="noopener">slimemold</a> — a Claude Code MCP that surfaces structural observations on a live conversation's claim graph rather than retrospectively annotating a transcript. Different problem, adjacent intuitions.</p>
+
+                    <h2>Feedback</h2>
+                    <p>If you have concerns about the methodology, want to report a finding that's wrong, or want to suggest improvements: <a href="mailto:hello@ismyaialive.com">hello@ismyaialive.com</a>, or open an issue on GitHub.</p>
+                </div>
+
+                <div class="cta-box">
+                    <h2>With these limitations in mind…</h2>
+                    <p>Findings are data points, not verdicts. Use them as one input among many.</p>
+                    <a href="/analyze.html" class="btn btn-primary">Try the analyzer</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/about.html">About</a>
+                    <a href="/privacy.html">Privacy</a>
+                    <a href="/faq.html">FAQ</a>
+                    <a href="/for-families.html">For Families</a>
+                    <a href="/press.html">Press</a>
+                </div>
+                <p class="footer-note">If you need support: <a href="tel:988">988 (US)</a> · <a href="https://www.thehumanlineproject.org/" target="_blank" rel="noopener">Human Line Project</a> · <a href="/privacy.html">We do not store your conversations.</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
