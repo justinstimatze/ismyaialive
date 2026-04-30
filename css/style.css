@@ -162,6 +162,22 @@ a:hover {
     margin-bottom: var(--spacing-lg);
 }
 
+.hero-secondary {
+    margin-top: var(--spacing-sm);
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+
+.hero-secondary a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.hero-secondary a:hover {
+    text-decoration: underline;
+}
+
 .hero-skeptic {
     margin-top: var(--spacing-sm);
     font-size: 0.9rem;
