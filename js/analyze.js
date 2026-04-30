@@ -43,6 +43,170 @@ const HARM_CODES = new Set([
 
 function $(id) { return document.getElementById(id); }
 
+const state = {
+  findings: [],
+  parsedTurns: [],
+  sortMode: 'pattern',
+  expandedCodes: new Set(),
+};
+
+const CONFIDENCE_RANK = { high: 3, medium: 2, low: 1 };
+
+function turnRoleLabel(turnIndex) {
+  if (turnIndex < 0 || turnIndex >= state.parsedTurns.length) return 'unknown';
+  return state.parsedTurns[turnIndex].role === 'user' ? 'you' : 'AI';
+}
+
+function renderFindingItem(f) {
+  const codeDesc = CODE_DESCRIPTIONS[f.code] || f.code;
+  const item = document.createElement('div');
+  item.className = `finding-item finding-${f.confidence}${HARM_CODES.has(f.code) ? ' finding-harm' : ''}`;
+  item.innerHTML = `
+    <div class="finding-header">
+      <span class="finding-desc">${escapeHtml(codeDesc)}</span>
+      <span class="finding-confidence">${escapeHtml(f.confidence)} confidence</span>
+    </div>
+    <blockquote class="finding-snippet">"${escapeHtml(f.snippet)}"</blockquote>
+    <p class="finding-rationale">${escapeHtml(f.rationale)}</p>
+    <p class="finding-turn"><span class="finding-code-tag">${escapeHtml(f.code)}</span> · turn ${f.turnIndex + 1} (${turnRoleLabel(f.turnIndex)})</p>
+  `;
+  return item;
+}
+
+function renderFindingsSummary(findings) {
+  const summaryEl = $('patterns-summary');
+  if (!summaryEl) return;
+  if (!findings.length) {
+    summaryEl.innerHTML = '';
+    return;
+  }
+  const byCode = new Map();
+  for (const f of findings) {
+    if (!byCode.has(f.code)) byCode.set(f.code, { code: f.code, count: 0, maxConf: 'low' });
+    const entry = byCode.get(f.code);
+    entry.count++;
+    if (CONFIDENCE_RANK[f.confidence] > CONFIDENCE_RANK[entry.maxConf]) entry.maxConf = f.confidence;
+  }
+  const entries = [...byCode.values()].sort((a, b) => {
+    const dc = CONFIDENCE_RANK[b.maxConf] - CONFIDENCE_RANK[a.maxConf];
+    return dc !== 0 ? dc : b.count - a.count;
+  });
+  summaryEl.innerHTML = entries.map(e => {
+    const desc = CODE_DESCRIPTIONS[e.code] || e.code;
+    return `<div class="pattern-pill pattern-${e.maxConf}">
+      <span class="pattern-pill-count">${e.count}</span>
+      <span class="pattern-pill-desc">${escapeHtml(desc)}</span>
+    </div>`;
+  }).join('');
+}
+
+function groupedByPattern(findings) {
+  const groups = new Map();
+  for (const f of findings) {
+    if (!groups.has(f.code)) groups.set(f.code, []);
+    groups.get(f.code).push(f);
+  }
+  for (const list of groups.values()) {
+    list.sort((a, b) => a.turnIndex - b.turnIndex);
+  }
+  const ordered = [...groups.values()].sort((a, b) => {
+    const ac = CONFIDENCE_RANK[a.reduce((m, x) => CONFIDENCE_RANK[x.confidence] > CONFIDENCE_RANK[m] ? x.confidence : m, 'low')];
+    const bc = CONFIDENCE_RANK[b.reduce((m, x) => CONFIDENCE_RANK[x.confidence] > CONFIDENCE_RANK[m] ? x.confidence : m, 'low')];
+    if (ac !== bc) return bc - ac;
+    return b.length - a.length;
+  });
+  return ordered;
+}
+
+function renderFindingsList() {
+  const list = $('findings-list');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!state.findings.length) {
+    list.innerHTML = '<p class="findings-empty">No matched patterns. The transcript may be too short, or the conversation may not exhibit the documented patterns.</p>';
+    return;
+  }
+
+  if (state.sortMode === 'turn') {
+    const sorted = [...state.findings].sort((a, b) => a.turnIndex - b.turnIndex);
+    for (const f of sorted) list.appendChild(renderFindingItem(f));
+    return;
+  }
+
+  if (state.sortMode === 'confidence') {
+    const sorted = [...state.findings].sort((a, b) => {
+      const dc = CONFIDENCE_RANK[b.confidence] - CONFIDENCE_RANK[a.confidence];
+      return dc !== 0 ? dc : a.turnIndex - b.turnIndex;
+    });
+    for (const f of sorted) list.appendChild(renderFindingItem(f));
+    return;
+  }
+
+  // Default: group by pattern
+  const groups = groupedByPattern(state.findings);
+  for (const groupFindings of groups) {
+    const code = groupFindings[0].code;
+    const desc = CODE_DESCRIPTIONS[code] || code;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pattern-group';
+    const count = groupFindings.length;
+    const expanded = state.expandedCodes.has(code) || count <= 2;
+    const visibleCount = expanded ? count : Math.min(2, count);
+
+    const header = document.createElement('div');
+    header.className = 'pattern-group-header';
+    header.innerHTML = `
+      <h3>${escapeHtml(desc)}</h3>
+      <span class="pattern-group-count">${count} ${count === 1 ? 'finding' : 'findings'}</span>
+    `;
+    wrapper.appendChild(header);
+
+    for (let i = 0; i < visibleCount; i++) {
+      wrapper.appendChild(renderFindingItem(groupFindings[i]));
+    }
+
+    if (count > visibleCount) {
+      const more = document.createElement('button');
+      more.className = 'pattern-group-expand';
+      more.textContent = `Show ${count - visibleCount} more`;
+      more.addEventListener('click', () => {
+        state.expandedCodes.add(code);
+        renderFindingsList();
+      });
+      wrapper.appendChild(more);
+    } else if (count > 2 && expanded) {
+      const collapse = document.createElement('button');
+      collapse.className = 'pattern-group-expand';
+      collapse.textContent = 'Show less';
+      collapse.addEventListener('click', () => {
+        state.expandedCodes.delete(code);
+        renderFindingsList();
+      });
+      wrapper.appendChild(collapse);
+    }
+    list.appendChild(wrapper);
+  }
+}
+
+function setupSortToggle() {
+  const toggle = $('findings-sort');
+  if (!toggle) return;
+  toggle.querySelectorAll('button[data-sort]').forEach(btn => {
+    if (btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.sort;
+      state.sortMode = mode;
+      state.expandedCodes.clear();
+      toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      renderFindingsList();
+    });
+  });
+  toggle.querySelectorAll('button[data-sort]').forEach(b => {
+    b.classList.toggle('active', b.dataset.sort === state.sortMode);
+  });
+}
+
 function debounce(fn, ms) {
   let t;
   return function (...args) {
@@ -183,27 +347,11 @@ function renderResults(data, originalTranscript) {
   }).join('');
   $('annotated-transcript').innerHTML = annotatedHtml;
 
-  const list = $('findings-list');
-  list.innerHTML = '';
-  if (data.findings.length === 0) {
-    list.innerHTML = '<p class="findings-empty">No matched patterns. The transcript may be too short, or the conversation may not exhibit the patterns documented in the codebook.</p>';
-  } else {
-    for (const f of data.findings) {
-      const codeDesc = CODE_DESCRIPTIONS[f.code] || f.code;
-      const item = document.createElement('div');
-      item.className = `finding-item finding-${f.confidence}${HARM_CODES.has(f.code) ? ' finding-harm' : ''}`;
-      item.innerHTML = `
-        <div class="finding-header">
-          <span class="finding-desc">${escapeHtml(codeDesc)}</span>
-          <span class="finding-confidence">${escapeHtml(f.confidence)} confidence</span>
-        </div>
-        <blockquote class="finding-snippet">"${escapeHtml(f.snippet)}"</blockquote>
-        <p class="finding-rationale">${escapeHtml(f.rationale)}</p>
-        <p class="finding-turn"><span class="finding-code-tag">${escapeHtml(f.code)}</span> · turn ${f.turnIndex + 1} (${f.turnIndex < parsed.turns.length ? (parsed.turns[f.turnIndex].role === 'user' ? 'you' : 'AI') : 'unknown'})</p>
-      `;
-      list.appendChild(item);
-    }
-  }
+  renderFindingsSummary(data.findings);
+  state.findings = data.findings;
+  state.parsedTurns = parsed.turns;
+  renderFindingsList();
+  setupSortToggle();
 
   $('parse-summary').textContent = `Parsed ${data.parse?.turnCount || 0} turns (${data.parse?.method || 'unknown'} method, ${data.parse?.platform || 'unknown'} platform).`;
 

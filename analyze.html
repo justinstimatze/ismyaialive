@@ -137,6 +137,12 @@
                     <section class="result-section findings-section">
                         <h2>Pattern findings</h2>
                         <p class="findings-intro">Each finding shows the message, the kind of pattern it matched, and the reasoning. Confidence reflects how reliably each pattern can be detected — see our <a href="/methodology.html">methodology page</a> for the full pattern list, citations, and limitations.</p>
+                        <div id="patterns-summary" class="patterns-summary"></div>
+                        <div id="findings-sort" class="findings-sort" role="tablist" aria-label="Sort findings">
+                            <button type="button" data-sort="pattern" class="active">Group by pattern</button>
+                            <button type="button" data-sort="turn">In conversation order</button>
+                            <button type="button" data-sort="confidence">By confidence</button>
+                        </div>
                         <div id="findings-list" class="findings-list"></div>
                     </section>
 
