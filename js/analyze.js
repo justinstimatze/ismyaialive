@@ -226,11 +226,26 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+let crisisPrepassShown = false;
+let crisisPrepassDismissed = false;
+
 function showCrisisPrepass(detected) {
   const el = $('crisis-prepass');
-  if (!el) return;
-  if (detected) el.classList.remove('hidden');
-  else el.classList.add('hidden');
+  if (!el || crisisPrepassDismissed) return;
+  if (detected && !crisisPrepassShown) {
+    el.classList.remove('hidden');
+    crisisPrepassShown = true;
+  }
+}
+
+function setupCrisisPrepassDismiss() {
+  const dismiss = $('crisis-prepass-dismiss');
+  if (!dismiss) return;
+  dismiss.addEventListener('click', () => {
+    const el = $('crisis-prepass');
+    if (el) el.classList.add('hidden');
+    crisisPrepassDismissed = true;
+  });
 }
 
 function showError(msg) {
@@ -358,7 +373,8 @@ function renderResults(data, originalTranscript) {
   renderFindingsList();
   setupSortToggle();
 
-  $('parse-summary').textContent = `Parsed ${data.parse?.turnCount || 0} turns (${data.parse?.method || 'unknown'} method, ${data.parse?.platform || 'unknown'} platform).`;
+  const turnCount = data.parse?.turnCount || 0;
+  $('parse-summary').textContent = turnCount > 0 ? `We read ${turnCount} message${turnCount === 1 ? '' : 's'} from your conversation.` : '';
 
   results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -440,8 +456,46 @@ function setupForm() {
   });
 }
 
+function setupTextareaPersistence() {
+  const ta = $('transcript');
+  if (!ta) return;
+  const KEY = 'ismyaialive.draft';
+  try {
+    const saved = sessionStorage.getItem(KEY);
+    if (saved && !ta.value) ta.value = saved;
+  } catch {}
+  const save = debounce(() => {
+    try { sessionStorage.setItem(KEY, ta.value); } catch {}
+  }, 500);
+  ta.addEventListener('input', save);
+  document.getElementById('analyze-form')?.addEventListener('submit', () => {
+    try { sessionStorage.removeItem(KEY); } catch {}
+  });
+}
+
+function setupLoadingMessages() {
+  const loading = $('loading');
+  if (!loading) return;
+  const msgEl = loading.querySelector('.loading-text');
+  if (!msgEl) return;
+  let timer1, timer2;
+  const observer = new MutationObserver(() => {
+    if (loading.classList.contains('hidden')) {
+      clearTimeout(timer1); clearTimeout(timer2);
+    } else {
+      msgEl.textContent = 'Reading your transcript and looking for patterns…';
+      timer1 = setTimeout(() => { msgEl.textContent = 'Long transcript — still working. Can take up to a minute.'; }, 15000);
+      timer2 = setTimeout(() => { msgEl.textContent = 'Almost there. Hang on…'; }, 35000);
+    }
+  });
+  observer.observe(loading, { attributes: true, attributeFilter: ['class'] });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setupCharCount();
+  setupTextareaPersistence();
   setupCrisisPrepass();
+  setupCrisisPrepassDismiss();
   setupForm();
+  setupLoadingMessages();
 });

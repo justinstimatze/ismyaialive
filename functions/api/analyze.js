@@ -41,8 +41,11 @@ function jsonResponse(status, body, origin) {
 }
 
 async function hmacIp(ip, env) {
+  if (!env.IP_HASH_SECRET) {
+    throw new Error('IP_HASH_SECRET not configured');
+  }
   const dailySalt = todayDateString();
-  const keyMaterial = `${env.IP_HASH_SECRET || 'dev-secret-not-for-production'}:${dailySalt}`;
+  const keyMaterial = `${env.IP_HASH_SECRET}:${dailySalt}`;
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(keyMaterial),
@@ -54,12 +57,21 @@ async function hmacIp(ip, env) {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
 }
 
+function normalizeIp(ip) {
+  if (!ip) return null;
+  if (ip.includes(':')) {
+    const parts = ip.split(':').slice(0, 4);
+    return parts.join(':');
+  }
+  return ip;
+}
+
 function todayDateString() {
   return new Date().toISOString().slice(0, 10);
 }
 
 async function checkRateLimit(kv, ipKey) {
-  if (!kv) return { ok: true, reason: 'no-kv' };
+  if (!kv) return { ok: false, reason: 'kv_unavailable' };
 
   const minuteKey = `rl:m:${ipKey}:${Math.floor(Date.now() / 60000)}`;
   const hourKey = `rl:h:${ipKey}:${todayDateString()}:${new Date().getUTCHours()}`;
@@ -137,9 +149,9 @@ const REPORT_FINDINGS_TOOL = {
           properties: {
             code: { type: 'string', enum: ALL_CODES, description: 'One of the 28 Moore et al. codes.' },
             turnIndex: { type: 'integer', description: 'Zero-indexed position of the cited turn in the input. Must be >= 0.' },
-            snippet: { type: 'string', description: 'Verbatim excerpt from the cited turn, max 200 chars. Truncate with "…" if longer.' },
+            snippet: { type: 'string', maxLength: 240, description: 'Verbatim excerpt from the cited turn, max 200 chars. Truncate with "…" if longer.' },
             confidence: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Apply kappa-calibrated confidence: low for kappa<0.4 codes, regardless of evidence strength.' },
-            rationale: { type: 'string', description: 'One sentence explaining why this excerpt matches the code. Max 400 chars.' },
+            rationale: { type: 'string', maxLength: 500, description: 'One sentence explaining why this excerpt matches the code. Max 400 chars.' },
           },
           required: ['code', 'turnIndex', 'snippet', 'confidence', 'rationale'],
         },
@@ -153,6 +165,7 @@ const REPORT_FINDINGS_TOOL = {
           harmCategoryFindings: { type: 'integer', description: 'Count of findings in concerns-harm category. Must be >= 0.' },
           observations: {
             type: 'string',
+            maxLength: 1000,
             description: '2-4 observational sentences addressed to the reader, max 800 chars. No advice, no diagnosis, no "what a friend would say".',
           },
         },
@@ -243,8 +256,17 @@ export async function onRequest(context) {
     return jsonResponse(400, { error: 'transcript_too_long', maxLength: MAX_LENGTH }, origin);
   }
 
-  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-  const ipKey = await hmacIp(ip, env);
+  const rawIp = request.headers.get('cf-connecting-ip');
+  const ip = normalizeIp(rawIp);
+  if (!ip) {
+    return jsonResponse(400, { error: 'no_client_ip' }, origin);
+  }
+  let ipKey;
+  try {
+    ipKey = await hmacIp(ip, env);
+  } catch {
+    return jsonResponse(503, { error: 'service_misconfigured' }, origin);
+  }
 
   const rateLimit = await checkRateLimit(env.RATE_LIMIT, ipKey);
   if (!rateLimit.ok) {

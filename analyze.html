@@ -80,7 +80,8 @@
                                 <span class="btn-subtitle">IASP crisis centers</span>
                             </a>
                         </div>
-                        <p class="crisis-note">You can still continue with the analysis. The 988/Crisis Text Line resources stay available no matter what.</p>
+                        <p class="crisis-note">You can continue with the analysis. The 988 / Crisis Text Line resources stay available in the footer no matter what.</p>
+                        <button type="button" class="crisis-prepass-dismiss" id="crisis-prepass-dismiss">I have these resources, continue</button>
                     </div>
 
                     <p class="privacy-summary">Your transcript is sent to Claude (Anthropic) for analysis. Anthropic does not train on it and retains it for up to 30 days for abuse detection. We store nothing. <a href="/privacy.html">Full privacy policy</a>.</p>
@@ -138,10 +139,11 @@
                         <h2>Pattern findings</h2>
                         <p class="findings-intro">Each finding shows the message, the kind of pattern it matched, and the reasoning. Confidence reflects how reliably each pattern can be detected — see our <a href="/methodology.html">methodology page</a> for the full pattern list, citations, and limitations.</p>
                         <div id="patterns-summary" class="patterns-summary"></div>
-                        <div id="findings-sort" class="findings-sort" role="tablist" aria-label="Sort findings">
-                            <button type="button" data-sort="pattern" class="active">Group by pattern</button>
-                            <button type="button" data-sort="turn">In conversation order</button>
-                            <button type="button" data-sort="confidence">By confidence</button>
+                        <div id="findings-sort" class="findings-sort" aria-label="Sort findings">
+                            <span class="findings-sort-label">Sort:</span>
+                            <button type="button" data-sort="pattern" class="active">By type</button>
+                            <button type="button" data-sort="turn">In order</button>
+                            <button type="button" data-sort="confidence">Most confident first</button>
                         </div>
                         <div id="findings-list" class="findings-list"></div>
                     </section>

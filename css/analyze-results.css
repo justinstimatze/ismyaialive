@@ -12,6 +12,54 @@
   margin-top: 0.75rem;
 }
 
+.crisis-prepass-dismiss {
+  margin-top: 0.75rem;
+  background: transparent;
+  border: 1px solid #d97706;
+  color: #92400e;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.crisis-prepass-dismiss:hover {
+  background: #fef3c7;
+}
+
+.crisis-prominent-emphasis {
+  border-width: 3px;
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+}
+
+.findings-sort-label {
+  font-size: 0.85rem;
+  color: #555;
+  align-self: center;
+  margin-right: 0.25rem;
+}
+
+.acute-risk-box {
+  margin: 1rem 0 2rem;
+  padding: 1.25rem 1.5rem;
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+  border-radius: 8px;
+}
+
+.acute-risk-box p:first-child {
+  color: #991b1b;
+  font-size: 1rem;
+}
+
+.acute-risk-box ul {
+  margin: 0.75rem 0;
+}
+
+.acute-risk-box li {
+  margin: 0.5rem 0;
+}
+
 .privacy-summary {
   font-size: 0.85rem;
   color: #555;
