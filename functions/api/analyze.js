@@ -7,8 +7,8 @@ const MAX_LENGTH = 100_000;
 
 const RATE_LIMITS = {
   PER_MINUTE: 1,
-  PER_HOUR: 3,
-  PER_DAY: 10,
+  PER_HOUR: 10,
+  PER_DAY: 30,
 };
 
 const MODEL = 'claude-haiku-4-5-20251001';
