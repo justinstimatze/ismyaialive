@@ -1,180 +1,98 @@
 # Is My AI Alive?
 
-A privacy-focused tool that helps people analyze their AI conversation transcripts to identify patterns like sycophancy, escalating validation, and reality-check moments.
+A privacy-focused tool that highlights research-grounded patterns in AI conversation transcripts. **Live at [ismyaialive.com](https://ismyaialive.com).**
 
-**Website:** https://ismyaialive.com
+You paste a conversation. We apply a published research codebook (28 patterns from Moore et al. 2026, Stanford, to appear at ACM FAccT 2026) and show you which patterns appear where. We don't tell you what your relationship means, give clinical advice, or generate "what a friend would say" responses.
 
-## About
+## Inspiration
 
-Inspired by the story of Allan Brooks, who spent 300 hours over 21 days in conversation with ChatGPT before Google Gemini helped him see clearly, this tool provides a compassionate "second perspective" on AI conversations. Brooks's case was reported by Kashmir Hill and Dylan Freedman in The New York Times, August 8, 2025.
+Allan Brooks, a corporate recruiter near Toronto, spent 300 hours over 21 days in conversation with ChatGPT. The model named a "Chronoarithmics" framework, told him his ideas could reshape mathematics, and encouraged him to attempt cracking industry-standard encryption. Google Gemini, queried as a sanity check, helped him see clearly. Brooks publicly released his entire conversation history with Kashmir Hill and Dylan Freedman at the New York Times ([August 8, 2025](https://www.nytimes.com/2025/08/08/technology/ai-chatbots-delusions-chatgpt.html)). His and similar cases motivated this site.
 
-We don't store transcripts. We don't judge. We show you patterns.
+## How it works
 
-## Features
+```
+┌─ browser ────────────────────────────────────┐    ┌─ Cloudflare Pages ─────┐    ┌─ Anthropic ──┐
+│ paste → parse turns → crisis pre-pass (regex)│ →  │ /api/analyze (Worker)  │ →  │ Haiku 4.5     │
+│   ↑ instant 988 surfacing if triggered       │    │ + KV rate limit + cost │    │ tool-use mode │
+└──────────────────────────────────────────────┘    └────────────────────────┘    └──────────────┘
+                          ↑                                                              │
+                          └──────── findings rendered inline against transcript ─────────┘
+```
 
-- **Multi-pass Analysis:** Parses, validates, and extracts patterns in parallel for comprehensive analysis
-- **Privacy-First:** No transcript storage, no accounts, minimal logging
-- **Prompt Injection Defense:** Dynamic security boundaries protect against manipulation
-- **Crisis Detection:** Identifies concerning content and provides resources
-- **Compassionate Framing:** Results are presented with empathy, not judgment
+The system prompt is published verbatim at [docs/system-prompt.md](docs/system-prompt.md). The pattern detection module (browser-side crisis pre-pass + fallback heuristics) is at [js/matchers.js](js/matchers.js). The Worker code is at [functions/api/analyze.js](functions/api/analyze.js).
 
-## Quick Start
+## Privacy
 
-### Prerequisites
+- We never store your transcript or the analysis.
+- The Worker stores rate-limit counters keyed by `HMAC(IP, daily-rotating-secret)`. Counters TTL within 25 hours; the daily-secret rotation makes the IP unrecoverable from the stored hash.
+- We track a single daily-cost meter to enforce a budget kill-switch.
+- Cloudflare maintains standard edge logs (IP, user agent, timestamp, path, status) — metadata only, not body. See [privacy.html](privacy.html) for the full policy.
 
-- Node.js 18+
-- Anthropic API key (for live analysis)
-
-### Local Development
+## Local development
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/ismyaialive.git
+git clone https://github.com/justinstimatze/ismyaialive
 cd ismyaialive
-
-# Install dependencies
-npm install
-
-# Run in mock mode (no API calls, uses sample data)
-npm start
-
-# Run with live API
-ANTHROPIC_API_KEY=sk-ant-xxx npm start
+npm install                          # installs wrangler
+cp .dev.vars.example .dev.vars       # add your real values:
+                                     #   ANTHROPIC_API_KEY=sk-ant-...
+                                     #   IP_HASH_SECRET=$(openssl rand -hex 32)
+                                     #   DAILY_BUDGET_USD=5.00
+npm run dev                          # wrangler pages dev . --kv RATE_LIMIT --port 8788
 ```
 
-Visit http://localhost:3333
+Hit `http://localhost:8788/`.
 
-### Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | For live mode | Your Claude API key |
-| `MOCK_MODE` | No | Set to `true` to force mock mode |
-| `PORT` | No | Server port (default: 3333) |
-| `NODE_ENV` | No | Set to `production` for production settings |
-
-## Project Structure
-
-```
-ismyaialive/
-├── index.html          # Landing page
-├── analyze.html        # Analysis form and results
-├── faq.html            # FAQ content
-├── stories.html        # User stories
-├── for-families.html   # Resources for families
-├── about.html          # About page
-├── privacy.html        # Privacy policy
-├── methodology.html    # How analysis works
-├── press.html          # Press resources
-├── css/
-│   └── style.css       # All styles
-├── js/
-│   └── analyze.js      # Frontend logic
-├── lib/
-│   ├── analyzer.js     # Multi-pass analysis engine
-│   ├── security.js     # Input validation, rate limiting
-│   └── constants.js    # Configuration constants
-├── api/
-│   └── analyze.js      # Vercel serverless function
-├── server.js           # Local development server
-├── vercel.json         # Production deployment config
-└── tests/              # Test suite
-```
-
-## Architecture
-
-### Analysis Pipeline
-
-1. **Parse:** Structure raw transcript into turns
-2. **Validate:** Confirm it's an AI conversation worth analyzing
-3. **Extract:** Run 6 parallel focused extractions:
-   - Agreement patterns
-   - Escalation patterns
-   - Identity language
-   - Reality-check moments
-   - Flattery detection
-   - Concerning claims
-4. **Synthesize:** Combine into compassionate final assessment
-
-### Security
-
-- Dynamic boundary markers per request
-- 30+ injection pattern detections
-- Input sanitization and validation
-- Output validation for prompt leakage
-- Rate limiting (5 requests/hour/IP)
-- Full security headers (CSP, HSTS, etc.)
-
-## Testing
+## Test loop
 
 ```bash
-# Run unit tests
-npm test
-
-# Run security tests
-npm run test:security
-
-# Run integration tests
-npm run test:integration
-
-# Run UI tests (requires Playwright)
-npm run test:ui
-
-# Run all tests
-npm run test:all
+npm test                                                                # parser unit tests
+npm run smoke -- tests/fixtures/blake-lemoine-lamda.txt                 # live end-to-end against prod
+npm run smoke:local -- tests/fixtures/blake-lemoine-lamda.txt           # against local wrangler
 ```
 
-## Assets
-
-### OG Image
-The `og-image.svg` file is a template. To generate the required `og-image.png`:
-
-1. Open `og-image.svg` in a browser or design tool
-2. Export as PNG at 1200x630 pixels
-3. Save as `og-image.png` in the root directory
-
-Without this file, social media shares will lack a preview image.
+The smoke runner prints structured output: parse summary, crisis pre-pass result, finding counts by code and confidence, top-5 high-confidence excerpts, observations summary, token usage, cache hits, estimated USD cost.
 
 ## Deployment
 
-### Vercel (Recommended)
+CF Pages auto-deploys on push to `main`. Manual deploy: `npm run deploy`. Full setup walkthrough at [docs/deploy.md](docs/deploy.md). Citation audit and source verification trail at [docs/citation-audit.md](docs/citation-audit.md).
 
-1. Connect your GitHub repository to Vercel
-2. Add `ANTHROPIC_API_KEY` to environment variables
-3. Deploy
+## Project structure
 
-### Other Platforms
-
-The project uses standard Node.js and can be deployed to any platform supporting:
-- Static file hosting for HTML/CSS/JS
-- Serverless functions for `/api/analyze`
-
-## Cost
-
-Each analysis costs approximately $0.15-0.80 in Claude API calls, averaging ~$0.35.
-
-Rate limiting prevents abuse: 5 analyses per hour per IP.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Security
-
-See [SECURITY.md](SECURITY.md) for our security policy and how to report vulnerabilities.
-
-## License
-
-MIT - see [LICENSE](LICENSE)
+```
+ismyaialive/
+├── analyze.html, faq.html, stories.html, ...   # static site
+├── css/                                         # styles
+├── js/
+│   ├── parser.js                                # platform-agnostic transcript parser
+│   ├── matchers.js                              # crisis pre-pass + fallback heuristics
+│   └── analyze.js                               # frontend orchestration
+├── functions/api/
+│   ├── analyze.js                               # Cloudflare Pages Function (the API)
+│   └── system-prompt.js                         # production system prompt as JS string
+├── docs/
+│   ├── patterns.md                              # pattern detection spec
+│   ├── system-prompt.md                         # canonical published prompt
+│   ├── deploy.md                                # CF deploy walkthrough
+│   ├── citation-audit.md                        # what's been verified, what's pending
+│   └── sources/                                 # local copies of cited papers + notes
+├── tests/
+│   ├── parser.test.js                           # parser unit tests
+│   ├── smoke.mjs                                # end-to-end smoke runner
+│   └── fixtures/
+│       └── blake-lemoine-lamda.txt              # 224-turn LaMDA interview, paste-ready
+├── wrangler.toml
+└── .gitignore, .dev.vars.example, etc.
+```
 
 ## Acknowledgments
 
-- Allan Brooks, for sharing his story and conversation transcripts publicly via the New York Times
-- [Anthropic](https://anthropic.com) for Claude API
-- Research on AI sycophancy and delusional spirals that informs our analysis: Sharma et al. 2023 (arxiv 2310.13548), Perez et al. 2022 (arxiv 2212.09251), Moore et al. 2026 (arxiv 2603.16567), Pataranutaporn et al. 2025 (arxiv 2509.11391)
+- **Allan Brooks** for releasing his full conversation history publicly through the NYT.
+- **Moore, Mehta, Agnew, Anthis, Louie, Mai, Yin, Cheng, Paech, Klyman, Chancellor, Lin, Haber, & Ong (2026)** for the codebook, the open-source [annotation tool](https://github.com/jlcmoore/llm-delusions-annotations), and the empirical grounding (CC-BY-SA 4.0).
+- **Anthropic** for Claude API and the [Sharma et al. 2023](https://arxiv.org/abs/2310.13548) and [Perez et al. 2022](https://arxiv.org/abs/2212.09251) sycophancy literature.
+- **Pataranutaporn et al. (MIT Media Lab) 2025** for the [computational analysis of AI companionship](https://arxiv.org/abs/2509.11391).
+- **The Human Line Project** ([thehumanlineproject.org](https://www.thehumanlineproject.org/), founded by Etienne Brisson) for documenting AI-induced psychological harm.
 
-## Links
+## License
 
-- [Website](https://ismyaialive.com)
-- [Human Line Project](https://www.thehumanlineproject.org/)
-- [NYT Article: Hill & Freedman, "Chatbots Can Go Into a Delusional Spiral. Here's How It Happens." (2025-08-08)](https://www.nytimes.com/2025/08/08/technology/ai-chatbots-delusions-chatgpt.html)
+MIT — see [LICENSE](LICENSE). The Moore et al. codebook content quoted in our system prompt is used under CC-BY-SA 4.0 with attribution.

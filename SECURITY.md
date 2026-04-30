@@ -23,16 +23,16 @@ Please include:
 ### Scope
 
 In scope:
-- The ismyaialive.com website and API
-- Prompt injection vulnerabilities
-- Data privacy issues
-- Authentication/authorization bypasses
-- Rate limiting bypasses
+- The ismyaialive.com website and Pages Function (`/api/analyze`)
+- Prompt injection vulnerabilities affecting our system prompt or analysis output
+- Data privacy issues (e.g. unintended persistence of transcript data)
+- Rate-limiting or budget-cap bypasses
+- Information disclosure beyond what's documented in our privacy policy
 
 Out of scope:
-- Third-party services (Anthropic API, Vercel)
+- Third-party services (Anthropic API, Cloudflare infrastructure)
 - Social engineering attacks
-- Denial of service attacks
+- Denial of service attacks against Cloudflare's edge
 - Issues in dependencies (report to upstream)
 
 ### Safe Harbor
@@ -47,22 +47,21 @@ We will not pursue legal action against security researchers who:
 ## Security Features
 
 ### Privacy
-- No transcript storage - all analysis is ephemeral
-- No user accounts or tracking
-- Minimal logging (no content, truncated IPs)
-- GDPR-compliant data handling
+- No transcript storage — request body is read once, sent to Anthropic, discarded
+- No user accounts or session identifiers
+- Rate-limit counters keyed by HMAC-hashed IPs with daily-rotating secret; entries auto-expire within 25 hours
+- See [privacy.html](privacy.html) for the full policy
 
 ### Input Security
-- Prompt injection detection and blocking
-- Input sanitization and validation
-- Dynamic security boundaries per request
-- Output validation for leakage
+- Strict tool-use schema enforcing typed structured output from the LLM
+- Body length validation (200–100,000 chars)
+- Cloudflare WAF + DDoS shielding at the edge
 
 ### Infrastructure
-- HTTPS enforced (HSTS)
-- Content Security Policy
-- Rate limiting per IP
-- CORS restricted to production domain
+- HTTPS enforced (Cloudflare Universal SSL, HSTS)
+- Content Security Policy headers
+- Per-IP rate limiting with daily budget kill-switch
+- CORS restricted to ismyaialive.com / www.ismyaialive.com
 
 ## Acknowledgments
 
