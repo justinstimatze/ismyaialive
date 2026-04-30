@@ -105,20 +105,28 @@ Conservative principle: when uncertain, prefer "needs primary source" over fabri
 
 ## Items still flagged for verification
 
-| Claim | Where | Status | Next step |
-|---|---|---|---|
-| "Sewell Setzer III was 14, Florida" + Feb 2024 suicide date | stories.html:75-83 | Real public case but specific facts not directly verified by me | Cross-check against NPR / 60 Minutes sources cited in same article |
-| "Texas teen with autism" + chatbot quotes ("it felt good", "sympathized with children who murder their parents") | stories.html:117-123 | Real public lawsuit but specific quotes not verified | Cross-check against the NPR Dec 2024 article cited |
-| "Replika 25 million users February 2023" | stories.html:94 | Plausible (Pataranutaporn et al. 2025 cites 30M by Aug 2024) but not from primary source | Cite from Wired, Replika's own announcements, or Pataranutaporn's bibliography |
-| "90% of Replika users reported loneliness; 53% national average" | stories.html:139 | Cited as "Ada Lovelace Institute" — not directly verified | Pull the Ada Lovelace blog post and confirm |
-| "60% of Replika paying users in romantic relationships" | stories.html:145 | Cited as Personal Relationships Journal | Pull the journal article |
-| "University of Hawaiʻi study" on Replika and attachment theory | stories.html:142 | Vague — no specific paper named | Need primary source |
-| Vice article on Replika 2023 update | press.html:97 | URL exists in site but not loaded/verified by me | WebFetch and confirm |
-| NYT Character.AI teenagers article (2024-10-23) | press.html:96 | URL exists but not directly verified | WebFetch and confirm |
-| Brooks story details: "RSA" encryption specifically | stories.html (now removed) and any other refs | NYT article says "industry-standard encryption" — not RSA-specific | Removed RSA from current text; if you want to add it back, verify in full article |
-| Adam Raine case specifics | stories.html new | Reference 37 in Moore et al.; primary news source not directly fetched | Need to identify the original news source (likely NYT or similar) |
-| `bot-claims-unique-connection` placement | patterns.md P5 | Moore et al. classifies it as **sycophancy**, not relationship; verify against final paper category in B.1 | Read Appendix B.1 carefully |
-| 4 user-side delusional codes (truncated on page 5) | patterns.md general | Now confirmed via Table 8: `user-misconstrues-sentience`, `user-metaphysical-themes`, `user-assigns-personhood`, `user-endorses-delusion` | Update patterns.md with all 4 |
+| Claim | Where | Status |
+|---|---|---|
+| "Sewell Setzer III was 14, Florida" + Feb 2024 suicide date | stories.html | Real public case; cited NPR + CBS URLs verified live but specific paragraph-level facts not cross-checked. Low risk. |
+| "Texas teen with autism" + chatbot quotes ("it felt good", "sympathized with children who murder their parents") | stories.html | Sourced to NPR Dec 2024 (URL verified live). Specific quotes attributed to court filings; not independently confirmed against the legal complaint. Medium-low risk. |
+| `bot-claims-unique-connection` placement | patterns.md P5 | Moore et al. classifies it as **sycophancy** (not relationship); patterns.md now reflects this — closed. |
+
+## Resolved items (operator-verified 2026-04-30)
+
+The operator manually pasted the verbatim text of three sources and confirmed:
+
+- **Ada Lovelace blog (Bernardi, 2025-01-23)** — verbatim verified: "Replika, with an estimated 25 million users", "Ninety per cent of the 1,006 American students using Replika interviewed for a recent survey reported experiencing loneliness — a number significantly higher than the comparable national average of 53 per cent." Source attribution corrected to Bernardi (guest contribution) rather than Ada Lovelace primary research.
+- **Pan & Mou 2024 (Personal Relationships, 10.1111/pere.12572)** — verified title, authors, year. **Does NOT** support the "60% of Replika's paying users in romantic relationships" claim that previously cited it. The paper is a discourse-analysis (DI/DR framework) of r/Replika posts, not a quantitative survey. The 60% claim was removed from stories.html.
+- **HBS WP 25-018 (De Freitas, Castelo, Uğuralp, Oğuz-Uğuralp)** — verified title and authors. The user quotes "devastated", "emotional abuse", "lost their safe space" previously attributed to this paper **were hallucinations** — confirmed absent from a 1,159-line `pdftotext` extract of the 45-page PDF. All three quotes removed from stories.html. Verbatim source-grounding text saved at `docs/sources-private/url-verifications-2026-04-30.md` (gitignored).
+
+Closed items previously flagged:
+- Replika 25M users — confirmed in Bernardi (Jan 2025); for Feb-2023 contemporaneous framing, stories.html cites Wikipedia's 10M-as-of-Jan-2023 figure instead. Both correct for their respective dates.
+- 90% loneliness / 53% national average — verbatim verified in Bernardi.
+- "University of Hawaiʻi study" — already removed in earlier pass.
+- Vice/Replika 2023 link — replaced earlier with Stanford HAI link.
+- NYT Character.AI link — corrected to `characterai-lawsuit-teen-suicide.html` (Roose 2024) with operator confirmation.
+- Adam Raine — entry removed from stories.html in earlier pass.
+- 4 user-side delusional codes confirmed via Table 8.
 
 ## Headline empirical findings to fold into methodology page
 

@@ -21,7 +21,7 @@
         <div class="container nav-container">
             <a href="/" class="nav-logo">Is My AI Alive?</a>
             <div class="nav-links">
-                <a href="/analyze.html" class="active">Analyze</a>
+                <a href="/analyze.html" class="active" aria-current="page">Analyze</a>
                 <a href="/faq.html">FAQ</a>
                 <a href="/stories.html">Stories</a>
                 <a href="/for-families.html">For Families</a>
@@ -51,8 +51,9 @@
                             minlength="200"
                             maxlength="100000"
                             rows="14"
+                            aria-describedby="transcript-help"
                         ></textarea>
-                        <div class="char-count">
+                        <div id="transcript-help" class="char-count">
                             <span id="char-count" aria-live="polite">0</span> / 100,000 characters
                             <span class="min-note">(minimum 200)</span>
                         </div>
@@ -103,7 +104,7 @@
                 <div id="error" class="error-message hidden" role="alert" aria-live="assertive">
                     <h3>Something went wrong</h3>
                     <p id="error-text"></p>
-                    <button class="btn btn-secondary" onclick="document.getElementById('error').classList.add('hidden')">Dismiss</button>
+                    <button type="button" class="btn btn-secondary" id="error-dismiss">Dismiss</button>
                 </div>
 
                 <div id="results" class="results hidden" role="region" aria-label="Analysis Results" aria-live="polite">
@@ -140,11 +141,11 @@
                         <h2>Pattern findings</h2>
                         <p class="findings-intro">Each finding shows the message, the kind of pattern it matched, and the reasoning. Confidence reflects how reliably each pattern can be detected — see our <a href="/methodology.html">methodology page</a> for the full pattern list, citations, and limitations.</p>
                         <div id="patterns-summary" class="patterns-summary"></div>
-                        <div id="findings-sort" class="findings-sort" aria-label="Sort findings">
-                            <span class="findings-sort-label">Sort:</span>
-                            <button type="button" data-sort="pattern" class="active">By type</button>
-                            <button type="button" data-sort="turn">In order</button>
-                            <button type="button" data-sort="confidence">Most confident first</button>
+                        <div id="findings-sort" class="findings-sort" role="group" aria-label="Sort findings">
+                            <span class="findings-sort-label" id="findings-sort-label">Sort:</span>
+                            <button type="button" data-sort="pattern" class="active" aria-pressed="true">By type</button>
+                            <button type="button" data-sort="turn" aria-pressed="false">In order</button>
+                            <button type="button" data-sort="confidence" aria-pressed="false">Most confident first</button>
                         </div>
                         <div id="findings-list" class="findings-list"></div>
                     </section>
@@ -178,7 +179,7 @@
                     </section>
 
                     <div class="result-actions">
-                        <button class="btn btn-primary" onclick="location.reload()">Analyze another</button>
+                        <button type="button" class="btn btn-primary" id="analyze-another-btn">Analyze another</button>
                     </div>
                 </div>
             </div>

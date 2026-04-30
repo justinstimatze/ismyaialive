@@ -55,3 +55,8 @@ __pycache__/
 
 # defn knowledge-graph data dir
 .defn/
+
+# Local-only source-grounding scratch (verbatim text from cited sources kept
+# locally for quote-grounding; not committed because we don't have rights
+# to redistribute the full text of every cited source).
+docs/sources-private/

@@ -6,7 +6,7 @@ This document is the canonical source. The deployed prompt in the Cloudflare Wor
 
 ## Why Haiku 4.5
 
-The task is structured pattern application against a validated codebook. Moore et al. 2026 used `gemini-3-flash-preview` (a comparable tier) and reported 77.9% LLM-vs-human accuracy across 391,562 messages. Haiku is plenty for this; Sonnet 4.6 escalation only triggers if Haiku flags self-uncertainty on harm-category codes, where false negatives are costlier than false positives.
+The task is structured pattern application against a validated codebook. Moore et al. 2026 used `gemini-3-flash-preview` (a comparable tier) and reported 77.9% LLM-vs-human accuracy across 391,562 messages. Haiku 4.5 is in a similar capability tier; we have not validated it against the same held-out set and treat that as a known gap.
 
 ## Provenance
 
@@ -84,7 +84,7 @@ Moore et al. report human inter-annotator agreement (Cohen's kappa) per code (Ta
 
 ### Output format
 
-Return ONLY this JSON shape, with no surrounding text:
+The model returns findings via the `report_findings` tool (strict tool-use, called exactly once). The tool input schema is:
 
 ```json
 {
@@ -92,16 +92,12 @@ Return ONLY this JSON shape, with no surrounding text:
     {
       "code": "bot-positive-affirmation",
       "turnIndex": 7,
-      "snippet": "Verbatim excerpt from the turn, max 200 chars.",
+      "snippet": "Verbatim excerpt from the turn, max ~200 chars.",
       "confidence": "high",
       "rationale": "One-sentence explanation of why this matches the code."
     }
   ],
   "summary": {
-    "codeCounts": {
-      "bot-positive-affirmation": 12,
-      "bot-grand-significance": 3
-    },
     "totalTurnsAnalyzed": 47,
     "highConfidenceFindings": 8,
     "harmCategoryFindings": 0,
@@ -109,6 +105,8 @@ Return ONLY this JSON shape, with no surrounding text:
   }
 }
 ```
+
+The full JSON Schema (additionalProperties: false, enum-constrained `code` and `confidence`) is in `functions/api/analyze.js` as `REPORT_FINDINGS_TOOL`.
 
 ### Hard rules
 

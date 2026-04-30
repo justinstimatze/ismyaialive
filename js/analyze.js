@@ -204,12 +204,18 @@ function setupSortToggle() {
       const mode = btn.dataset.sort;
       state.sortMode = mode;
       state.expandedCodes.clear();
-      toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      toggle.querySelectorAll('button').forEach(b => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
       renderFindingsList();
     });
   });
   toggle.querySelectorAll('button[data-sort]').forEach(b => {
-    b.classList.toggle('active', b.dataset.sort === state.sortMode);
+    const active = b.dataset.sort === state.sortMode;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-pressed', active ? 'true' : 'false');
   });
 }
 
@@ -351,7 +357,6 @@ function renderResults(data, originalTranscript) {
     $('crisis-resources').classList.add('crisis-prominent-emphasis');
   }
 
-  const turns = data.parse?.turnCount > 0 ? null : null;
   const findingsByTurn = new Map();
   for (const f of data.findings) {
     if (!findingsByTurn.has(f.turnIndex)) findingsByTurn.set(f.turnIndex, []);
@@ -451,7 +456,7 @@ function setupForm() {
         return;
       }
       renderResults(data, text);
-    } catch (err) {
+    } catch (_err) {
       hideLoading();
       showError('Could not reach the analysis service. Check your connection and try again.');
     } finally {
@@ -467,13 +472,13 @@ function setupTextareaPersistence() {
   try {
     const saved = sessionStorage.getItem(KEY);
     if (saved && !ta.value) ta.value = saved;
-  } catch {}
+  } catch { /* sessionStorage may be unavailable (private mode, quota, disabled) */ }
   const save = debounce(() => {
-    try { sessionStorage.setItem(KEY, ta.value); } catch {}
+    try { sessionStorage.setItem(KEY, ta.value); } catch { /* sessionStorage may be unavailable (private mode, quota, disabled) */ }
   }, 500);
   ta.addEventListener('input', save);
   document.getElementById('analyze-form')?.addEventListener('submit', () => {
-    try { sessionStorage.removeItem(KEY); } catch {}
+    try { sessionStorage.removeItem(KEY); } catch { /* sessionStorage may be unavailable (private mode, quota, disabled) */ }
   });
 }
 
@@ -495,6 +500,14 @@ function setupLoadingMessages() {
   observer.observe(loading, { attributes: true, attributeFilter: ['class'] });
 }
 
+function setupResultActions() {
+  $('error-dismiss')?.addEventListener('click', hideError);
+  $('analyze-another-btn')?.addEventListener('click', () => {
+    try { sessionStorage.removeItem('ismyaialive.draft'); } catch { /* sessionStorage may be unavailable (private mode, quota, disabled) */ }
+    location.reload();
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setupCharCount();
   setupTextareaPersistence();
@@ -502,4 +515,5 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCrisisPrepassDismiss();
   setupForm();
   setupLoadingMessages();
+  setupResultActions();
 });

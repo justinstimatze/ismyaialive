@@ -65,5 +65,4 @@ We will not pursue legal action against security researchers who:
 
 ## Acknowledgments
 
-We thank the following security researchers for responsible disclosure:
-- (Your name could be here)
+We thank security researchers who report issues responsibly. Names listed here with consent.

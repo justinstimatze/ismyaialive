@@ -19,9 +19,9 @@ const AI_NAME_PREFIXES = [
   /^grok[-\s]?\d/,
 ];
 
-const LABEL_LINE = /^[ \t]*([A-Za-z][\w. \-]{0,30}?)(?: said)?:[ \t]*$/gm;
+const LABEL_LINE = /^[ \t]*([A-Za-z][\w. -]{0,30}?)(?: said)?:[ \t]*$/gm;
 
-const INLINE_LABEL_LINE = /^[ \t]*([A-Za-z][\w. \-]{0,30}?)(?: said)?:[ \t]+(?=\S)/gm;
+const INLINE_LABEL_LINE = /^[ \t]*([A-Za-z][\w. -]{0,30}?)(?: said)?:[ \t]+(?=\S)/gm;
 
 function classifySpeaker(rawSpeaker) {
   const speaker = rawSpeaker.trim().toLowerCase();

@@ -1,87 +1,77 @@
 # Contributing to Is My AI Alive?
 
-Thank you for your interest in contributing! This project helps people understand their AI conversations, and we welcome contributions that advance that mission.
+Thanks for your interest. This project helps people understand their AI conversations; contributions that advance that mission are welcome.
 
-## Code of Conduct
+## Code of conduct
 
-Be kind, compassionate, and constructive. Remember that users of this tool may be in vulnerable states. Our code and communications should reflect empathy.
+Be kind, compassionate, and constructive. Users of this tool may be in vulnerable states. Code and communication should reflect that.
 
-## How to Contribute
+## How to contribute
 
-### Reporting Bugs
+### Reporting bugs
 
-1. Check existing issues first
-2. Use the bug report template
-3. Include steps to reproduce
-4. Include browser/environment details
+1. Check existing issues first.
+2. Open an issue with steps to reproduce, expected vs. actual, and browser/Node version.
+3. For security issues, do not open a public issue — see [SECURITY.md](SECURITY.md).
 
-### Suggesting Features
+### Suggesting features
 
-1. Open an issue with the "enhancement" label
-2. Describe the use case
-3. Explain how it helps users
+1. Open an issue describing the use case and how it helps users.
+2. Concrete UX or pattern-detection improvements are easier to evaluate than abstract proposals.
 
-### Pull Requests
+### Pull requests
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`npm run test:all`)
-5. Commit with clear messages
-6. Push to your fork
-7. Open a Pull Request
+1. Fork and create a feature branch.
+2. Run `npm test` to confirm the parser tests still pass.
+3. For changes that affect analysis output, run a smoke test against your local dev server (see below) and include sample output in the PR description.
+4. Open the PR with a clear description of the change and its motivation.
 
-## Development Setup
+## Development setup
+
+Requirements: Node.js 20+, an Anthropic API key, a Cloudflare account if you want to deploy.
 
 ```bash
-# Clone your fork
-git clone https://github.com/YOUR-USERNAME/ismyaialive.git
+git clone https://github.com/justinstimatze/ismyaialive
 cd ismyaialive
-
-# Install dependencies
 npm install
+cp .dev.vars.example .dev.vars
+# Edit .dev.vars: add your real ANTHROPIC_API_KEY and run `openssl rand -hex 32`
+# for IP_HASH_SECRET. DAILY_BUDGET_USD=5.00 is a reasonable dev value.
 
-# Start dev server (mock mode)
-npm start
-
-# Run with real API (costs money!)
-ANTHROPIC_API_KEY=sk-xxx npm start
+npm run dev          # serves at http://localhost:8788
 ```
 
-## Code Style
-
-- No build step - vanilla HTML/CSS/JS
-- ES modules (`import`/`export`)
-- Clear function documentation
-- Meaningful variable names
-- Constants in `lib/constants.js`
-
-## Testing
-
-All PRs should include tests for new functionality:
+## Tests and lint
 
 ```bash
-npm test              # Unit tests
-npm run test:security # Security tests
-npm run test:all      # Full suite
+npm run lint                                                      # ESLint (flat config)
+npm test                                                          # parser unit tests
+npm run smoke -- tests/fixtures/blake-lemoine-lamda.txt           # end-to-end against prod
+npm run smoke:local -- tests/fixtures/blake-lemoine-lamda.txt     # against local dev server
 ```
 
-## Areas We Need Help
+CI runs `npm run lint` and `npm test` on every push and PR. `npm run smoke` makes a real Anthropic API call and consumes rate-limit budget — use `smoke:local` while iterating.
 
-- **Internationalization:** Translations, international crisis resources
-- **Accessibility:** Screen reader testing, keyboard navigation
-- **Analysis Improvements:** Better pattern detection
-- **Documentation:** Guides, examples, FAQ additions
-- **Testing:** Edge cases, browser compatibility
+## Code style
 
-## What We Won't Accept
+- No build step — vanilla HTML/CSS/JS, ES modules
+- Two-space indent, single quotes in JS
+- The Worker is in `functions/api/`; the browser code is in `js/`
+- Prefer adding to existing patterns over introducing new abstractions
 
-- Features that store user transcripts
-- Tracking or analytics that compromise privacy
-- Judgmental or pathologizing language
-- Breaking changes without discussion
-- PRs without tests
+## Areas where help is welcome
 
-## Questions?
+- Internationalization: translations, non-English crisis resources
+- Accessibility: screen reader testing, keyboard navigation
+- Pattern detection: adding fixtures, reducing false positives, drift-resistance
+- Documentation: clarifications, examples
 
-Open an issue with the "question" label or email hello@ismyaialive.com
+## What we won't merge
+
+- Features that store user transcripts or add tracking
+- Pathologizing or judgmental language
+- Changes that reduce safety surfacing (988, Crisis Text Line, IASP)
+
+## Questions
+
+Open an issue or email <hello@ismyaialive.com>.

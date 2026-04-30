@@ -2,7 +2,7 @@
 
 A privacy-focused tool that highlights research-grounded patterns in AI conversation transcripts. **Live at [ismyaialive.com](https://ismyaialive.com).**
 
-You paste a conversation. We apply a published research codebook (28 patterns from Moore et al. 2026, Stanford, to appear at ACM FAccT 2026) and show you which patterns appear where. We don't tell you what your relationship means, give clinical advice, or generate "what a friend would say" responses.
+You paste a conversation. The primary analysis applies a published research codebook (28 patterns from Moore et al. 2026, Stanford, to appear at ACM FAccT 2026). Alongside that, the site runs an always-on deterministic crisis pre-pass and a set of structural/lexical patterns (P1–P11 in [`js/matchers.js`](js/matchers.js), spec in [`docs/patterns.md`](docs/patterns.md)) we developed before Moore was published — they cross-validate the LLM analysis and act as a fallback when the API is over-budget or unreachable. We don't tell you what your relationship means, give clinical advice, or generate "what a friend would say" responses.
 
 ## Inspiration
 

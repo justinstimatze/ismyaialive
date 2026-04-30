@@ -102,6 +102,15 @@
                     <h2>The crisis pre-pass</h2>
                     <p>The crisis pre-pass is <strong>not</strong> from Moore et al. — it's our own deterministic regex over user-side messages, designed to surface 988 / Crisis Text Line / IASP resources <em>before</em> any AI analysis runs and <em>regardless</em> of whether the AI analysis succeeds. It looks for explicit phrases (e.g., "kill myself", "want to die") and softer signals (e.g., "no point", "want to disappear"). The crisis resources also appear unconditionally on every results page, regardless of what the regex or the model finds. Safety is not contingent on detection.</p>
 
+                    <h2>Our own pattern set (independent of Moore et al.)</h2>
+                    <p>Before Moore et al. 2026 was published we developed our own browser-side pattern matchers (P1–P11) targeting structural and lexical signals we'd seen in publicly documented cases. These live in <a href="https://github.com/justinstimatze/ismyaialive/blob/main/js/matchers.js" target="_blank" rel="noopener">js/matchers.js</a> and the spec is in <a href="https://github.com/justinstimatze/ismyaialive/blob/main/docs/patterns.md" target="_blank" rel="noopener">docs/patterns.md</a>. They run today as:</p>
+                    <ul>
+                        <li><strong>The crisis pre-pass</strong> (P11) — always-on, deterministic, zero-latency. Independent of the API.</li>
+                        <li><strong>Fallback annotations</strong> when the LLM call is over-budget, rate-limited, or unreachable. The site degrades to surfacing what regex can find rather than nothing.</li>
+                    </ul>
+                    <p>Several patterns we wrote first overlap with codes Moore et al. later validated against three human annotators — for example, our "first-person attachment" (P1) maps to <code>bot-romantic-interest</code>, our "identity reinforcement" (P4) maps to <code>bot-grand-significance</code>, our "boundary erosion" (P5) maps closely to <code>bot-claims-unique-connection</code>, and our "cosmology grandiosity" (P6) overlaps with <code>bot-metaphysical-themes</code> and <code>bot-grand-significance</code>. The convergent independent finding — different observers arriving at similar structural patterns — is itself a cross-validation signal. We treat the Moore et al. codebook as the primary surface today because it has measured inter-annotator agreement; our own patterns inform the system prompt's examples and provide the fallback when the API is unavailable.</p>
+                    <p>Some of our patterns (P9 time density, P7 vocabulary convergence) are statistical and not directly mirrored in Moore et al.'s lexical codebook. Those remain ours.</p>
+
                     <h2>Research grounding</h2>
                     <p>The 28-pattern set is operational, but the broader project sits on a wider research base:</p>
                     <ul>

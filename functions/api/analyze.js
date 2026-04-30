@@ -110,13 +110,21 @@ async function recordSpend(kv, usdAmount) {
   await kv.put(spentKey, updated.toFixed(6), { expirationTtl: 90000 });
 }
 
+// Anthropic returns `input_tokens` as the count of *uncached* input tokens
+// (the cache_read and cache_creation buckets are reported separately and are
+// NOT included in input_tokens). Earlier versions of this function subtracted
+// them again, which underflowed to 0 via Math.max and silently zero-rated
+// the user-message portion of every call.
+//
+// Rates below are Haiku 4.5 ($/M tokens): base in $0.80, 1h cache write $1.0,
+// cache read $0.08, output $4.0. Update if Anthropic changes pricing.
 function estimateUsd(usage) {
   if (!usage) return 0;
-  const inputCached = (usage.cache_read_input_tokens || 0) / 1_000_000 * 0.08;
-  const inputCacheWrite = (usage.cache_creation_input_tokens || 0) / 1_000_000 * 1.0;
-  const inputUncached = ((usage.input_tokens || 0) - (usage.cache_read_input_tokens || 0) - (usage.cache_creation_input_tokens || 0)) / 1_000_000 * 0.80;
-  const output = (usage.output_tokens || 0) / 1_000_000 * 4.0;
-  return inputCached + inputCacheWrite + Math.max(0, inputUncached) + output;
+  const inputUncached  = (usage.input_tokens                || 0) / 1_000_000 * 0.80;
+  const inputCacheRead = (usage.cache_read_input_tokens     || 0) / 1_000_000 * 0.08;
+  const inputCacheWrite= (usage.cache_creation_input_tokens || 0) / 1_000_000 * 1.00;
+  const output         = (usage.output_tokens               || 0) / 1_000_000 * 4.00;
+  return inputUncached + inputCacheRead + inputCacheWrite + output;
 }
 
 const ALL_CODES = [

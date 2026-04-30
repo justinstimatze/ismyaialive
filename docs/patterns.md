@@ -9,8 +9,7 @@ Working document. The implementation contract for what the site claims to detect
 **Non-goals:**
 - Diagnostic or clinical judgment. We do not produce verdicts.
 - Exhaustive coverage. We catch the low-hanging fruit; we do not pretend to catch everything.
-- Personalized analysis from an AI as the default. The default surface is deterministic and runs in the browser. An optional second pass calls an LLM with explicit consent.
-- Storage of transcripts. The default path never transmits the transcript. The opt-in second pass transmits it once for analysis and we retain nothing.
+- Storage of transcripts. The transcript is sent to Anthropic for one analysis and we retain nothing on our side.
 
 ## Architecture (revised 2026-04-30)
 
@@ -32,10 +31,9 @@ The main analysis is a single Claude Haiku 4.5 call with the system prompt at `d
 
 Up-front user disclosure (no separate consent modal): "Your transcript is sent to Claude (Anthropic) for analysis. Anthropic does not train on this data and retains it for up to 30 days for abuse detection. We store nothing." One sentence, in the form, not a popup.
 
-Rate limiting (Cloudflare Worker + KV):
-- 3/hour, 10/day per IP (HMAC-hashed with daily-rotating secret, KV with TTL)
-- 1/minute burst cap
-- Global daily cost kill-switch — over the cap, the site falls back to the heuristic-only display with a banner explaining "deeper read temporarily unavailable today"
+Rate limiting (Cloudflare Worker + KV; current values in `functions/api/analyze.js`):
+- 1/minute, 10/hour, 30/day per IP (HMAC-hashed with daily-rotating secret, KV with TTL)
+- Global daily cost kill-switch — over the cap, the site returns a 503 with a "deeper read temporarily unavailable today" message; the deterministic crisis pre-pass and basic flags still surface.
 
 ## Drift sensitivity classification
 
@@ -269,6 +267,6 @@ In the slimemold register, owned upfront on the methodology page:
 
 1. **Parser scope** — handle ChatGPT, Claude, Character.AI, Gemini, Grok, Replika, and generic manual paste. Detection is heuristic; fallback is alternation.
 2. **UI for annotation** — design owned by Claude in implementation. Constraint: must surface *raw observations*, not advice. The Jan UX critique flagged that AI-generated "honest alternative" substituted for real human contact; the new UI must read as a magnifying glass, not a counselor.
-3. **Second-pass consent** — play it safe. Explicit list of what gets sent, retention policy quoted from Anthropic's actual privacy policy, prominent skip option, default-no.
-4. **privacy.html rewrite** — yes, under the two-stage architecture.
-5. **Cloudflare for TLS + DDoS** — confirmed; nameservers can be repointed when ready.
+3. **No two-tier consent** — the two-tier (browser-default + opt-in LLM) design was considered and rejected (see Architecture above and `docs/citation-audit.md`). Privacy disclosure is a single sentence in the form, not a popup.
+4. **privacy.html** — rewritten under the LLM-only architecture; controller named, Anthropic DPA linked, retention behavior disclosed.
+5. **Cloudflare for TLS + DDoS** — confirmed; ismyaialive.com served via CF Pages with Universal SSL.
