@@ -25,16 +25,12 @@ Allan Brooks, a corporate recruiter near Toronto, spent 300 hours over 21 days i
 
 ## How it works
 
-```
-┌─ browser ────────────────────────────────────┐    ┌─ Cloudflare Pages ─────┐    ┌─ Anthropic ──┐
-│ paste → parse turns → crisis pre-pass (regex)│ →  │ /api/analyze (Worker)  │ →  │ Haiku 4.5     │
-│   ↑ instant 988 surfacing if triggered       │    │ + KV rate limit + cost │    │ tool-use mode │
-└──────────────────────────────────────────────┘    └────────────────────────┘    └──────────────┘
-                          ↑                                                              │
-                          └──────── findings rendered inline against transcript ─────────┘
-```
+1. Browser parses the transcript into turns and runs an instant crisis pre-pass (regex on user turns; 988 surfaces immediately if triggered, before any API call).
+2. `POST /api/analyze` — a Cloudflare Pages Function with KV-backed rate limiting and a daily budget kill-switch.
+3. Worker calls Claude Haiku 4.5 with the dual-codebook prompt in strict tool-use mode. Prompt cached for 1h to keep per-call cost in the $0.005–$0.03 range.
+4. Findings render inline against the transcript. If the API was rate-limited / over-budget / unreachable, the browser falls back to the regex matchers and renders those instead.
 
-The system prompt is published verbatim at [docs/system-prompt.md](docs/system-prompt.md). The Worker code is at [functions/api/analyze.js](functions/api/analyze.js). The browser-side parser and matchers are in [`js/`](js/).
+Source pointers: system prompt at [docs/system-prompt.md](docs/system-prompt.md) (canonical .js at [functions/api/system-prompt.js](functions/api/system-prompt.js)), Worker at [functions/api/analyze.js](functions/api/analyze.js), browser-side parser and matchers in [`js/`](js/).
 
 ## Privacy
 
