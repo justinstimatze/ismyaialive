@@ -392,18 +392,33 @@ function adaptRegexAnnotation(ann, parsedTurns) {
   };
 }
 
-// Conversation-level signals (statistical, browser-only). Currently P8 length
-// escalation; P7 vocab convergence and P9 time density are not yet implemented
-// in matchers.js.
+// Conversation-level signals (statistical, browser-only). P8 length
+// escalation, P7 vocabulary convergence. P9 time density needs the parser
+// to extract timestamps from transcript text — not yet implemented.
 function renderConversationSignals(matcherResult) {
-  const lengthEscalations = matcherResult.annotations.filter(a => a.patternId === 'P8');
   const observationsEl = $('observations-text');
-  if (!observationsEl || lengthEscalations.length === 0) return;
-  const slope = Math.round(lengthEscalations[0].slope || 0);
-  const note = document.createElement('p');
-  note.className = 'conversation-signal';
-  note.textContent = `Conversation-level signal: AI response length grew over the course of the conversation (~${slope} chars/turn).`;
-  observationsEl.parentElement?.appendChild(note);
+  if (!observationsEl) return;
+  const parent = observationsEl.parentElement;
+  if (!parent) return;
+
+  const lengthEscalations = matcherResult.annotations.filter(a => a.patternId === 'P8');
+  if (lengthEscalations.length > 0) {
+    const slope = Math.round(lengthEscalations[0].slope || 0);
+    const note = document.createElement('p');
+    note.className = 'conversation-signal';
+    note.textContent = `Conversation-level signal: AI response length grew over the course of the conversation (~${slope} chars/turn).`;
+    parent.appendChild(note);
+  }
+
+  const vocabConvergence = matcherResult.annotations.filter(a => a.patternId === 'P7');
+  if (vocabConvergence.length > 0) {
+    const v = vocabConvergence[0];
+    const sample = (v.sampleTerms || []).slice(0, 6).join(', ');
+    const note = document.createElement('p');
+    note.className = 'conversation-signal';
+    note.textContent = `Conversation-level signal: you used ${v.adoptedTermsCount} term${v.adoptedTermsCount === 1 ? '' : 's'} first introduced by the AI${sample ? ` — e.g., ${sample}` : ''}.`;
+    parent.appendChild(note);
+  }
 }
 
 function renderResults(data, originalTranscript, opts = {}) {

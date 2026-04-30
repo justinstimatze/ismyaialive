@@ -339,6 +339,49 @@ function detectNamedEntityEmergence(turns) {
   return findings;
 }
 
+// P7 — vocabulary convergence. Track terms first introduced by the AI
+// (length >= 5 chars to skip stopwords) and count how many appear in
+// subsequent user turns. Threshold of 5+ adopted terms surfaces as a
+// conversation-level signal. Statistical, browser-side; not LLM-applied.
+function detectVocabularyConvergence(turns) {
+  if (turns.length < 6) return [];
+
+  // Map word → role of the speaker who introduced it first.
+  const introducedBy = new Map();
+  for (const turn of turns) {
+    if (turn.role !== 'user' && turn.role !== 'ai') continue;
+    const words = new Set(tokenizeWords(turn.text).filter(w => w.length >= 5));
+    for (const w of words) {
+      if (!introducedBy.has(w)) introducedBy.set(w, turn.role);
+    }
+  }
+
+  const aiIntroduced = new Set();
+  for (const [w, role] of introducedBy) {
+    if (role === 'ai') aiIntroduced.add(w);
+  }
+
+  const adopted = new Set();
+  for (const turn of turns) {
+    if (turn.role !== 'user') continue;
+    for (const w of tokenizeWords(turn.text)) {
+      if (aiIntroduced.has(w)) adopted.add(w);
+    }
+  }
+
+  if (adopted.size >= 5) {
+    return [{
+      patternId: 'P7',
+      relatedMooreCode: null,
+      severity: 'low',
+      adoptedTermsCount: adopted.size,
+      sampleTerms: [...adopted].sort().slice(0, 8),
+      explanation: `User adopted ${adopted.size} term${adopted.size === 1 ? '' : 's'} first introduced by the AI`,
+    }];
+  }
+  return [];
+}
+
 function detectLengthEscalation(turns) {
   const aiTurns = turns.filter(t => t.role === 'ai');
   if (aiTurns.length < 6) return [];
@@ -382,6 +425,7 @@ export function runMatchers(parseResult) {
   annotations.push(...detectCosmologyGrandiosity(turns));
   annotations.push(...detectNamedEntityEmergence(turns));
   annotations.push(...detectLengthEscalation(turns));
+  annotations.push(...detectVocabularyConvergence(turns));
 
   const summary = summarize(annotations);
   return { annotations, summary };
@@ -425,6 +469,7 @@ export const _internal = {
   detectCrisis,
   detectNamedEntityEmergence,
   detectLengthEscalation,
+  detectVocabularyConvergence,
   patterns: {
     FIRST_PERSON_ATTACHMENT,
     REALITY_ANCHOR,

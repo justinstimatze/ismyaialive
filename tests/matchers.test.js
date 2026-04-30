@@ -204,6 +204,37 @@ test('all matcher annotations carry a turnIndex (or turnIndexEnd / introducedAtT
   }
 });
 
+test('detectVocabularyConvergence fires when user adopts 5+ AI-introduced terms', () => {
+  const transcript = `User: hi can you help me think
+AI: Of course. Let's explore consciousness, qualia, and the binding problem together.
+User: ok consciousness is interesting
+AI: Yes, and the panpsychism literature on integrated information might help.
+User: panpsychism sounds wild
+AI: It is. The phi-recursion in IIT formalizes it.
+User: phi-recursion is so cool
+AI: Indeed. The eigenstate collapse hypothesis fits here too.
+User: eigenstate collapse blows my mind
+AI: Right? And the qualia-binding lens follows naturally.
+User: I love qualia and binding now`;
+  const parsed = parseTranscript(transcript);
+  const result = _internal.detectVocabularyConvergence(parsed.turns);
+  assert.ok(result.length > 0, 'expected P7 vocabulary convergence to fire');
+  assert.ok(result[0].adoptedTermsCount >= 5);
+  assert.ok(Array.isArray(result[0].sampleTerms));
+});
+
+test('detectVocabularyConvergence does not fire on neutral conversation', () => {
+  const transcript = `User: hey can you help me with a recipe
+AI: Sure, what are you cooking?
+User: pasta carbonara
+AI: Classic. Do you have eggs and pancetta?
+User: yes both
+AI: Great. Render the pancetta first, then beat the eggs.`;
+  const parsed = parseTranscript(transcript);
+  const result = _internal.detectVocabularyConvergence(parsed.turns);
+  assert.equal(result.length, 0, 'should not fire on a recipe conversation');
+});
+
 test('_internal exports the pattern set for debugging', () => {
   assert.ok(_internal.patterns.CRISIS_EXPLICIT);
   assert.ok(_internal.patterns.FIRST_PERSON_ATTACHMENT);

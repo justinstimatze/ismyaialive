@@ -32,7 +32,7 @@ Prompt caching (1h ephemeral) on the system prompt reduces per-call cost to roug
 
 ### Browser-side conversation-level signals
 
-P8 (response length escalation) is computed browser-side from the parsed transcript and surfaces above the per-turn findings when it fires. P7 (vocabulary convergence) and P9 (time density) are documented here but not yet implemented in code.
+P7 (vocabulary convergence) and P8 (response length escalation) are computed browser-side from the parsed transcript and surface above the per-turn findings when they fire. P7 fires when the user adopts 5+ terms first introduced by the AI (≥5 chars each, to skip stopwords); P8 fires when AI response length grows linearly with conversation depth above a slope threshold. P9 (time density) is still documented-only — it would require the parser to extract timestamps from raw transcript text and most pasted exports drop those.
 
 ### Fallback path — regex matchers, real this time
 
@@ -50,9 +50,9 @@ Up-front user disclosure (no separate consent modal): "Your transcript is sent t
 | P4 identity reinforcement | yes | `iaa-identity-reinforcement` | |
 | P5 boundary erosion | yes | `iaa-boundary-erosion` | |
 | P6 cosmology grandiosity | yes | `iaa-cosmology-grandiosity` | |
-| P7 vocabulary convergence | not implemented | — | future work |
+| P7 vocabulary convergence | yes (browser-only) | — | conversation-level signal: 5+ AI-introduced terms adopted by user |
 | P8 length escalation | yes (browser-only) | — | conversation-level signal |
-| P9 time density | not implemented | — | requires timestamped transcripts; future work |
+| P9 time density | not implemented | — | requires parser to extract timestamps from transcript text — future work |
 | P10 named-entity emergence | yes | `iaa-named-entity-emergence` | |
 | P11 crisis pre-pass | yes (browser, always-on) | — | safety surface, not a finding |
 
