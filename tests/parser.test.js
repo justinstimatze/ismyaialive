@@ -53,6 +53,68 @@ test('parses Claude inline Human/Assistant labels', () => {
   assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai']);
 });
 
+test('drops colon-terminated section headers when real labels exist', () => {
+  const text = `=== USER ===
+
+is balance just slow oscillation
+
+=== ASSISTANT ===
+
+Limit cycles look balanced from outside.
+
+So let:
+
+f = predator-prey rate
+g = stabilization rate
+
+Substituting:
+
+f / g = balance ratio
+
+For example:
+
+Wolves and elk in Yellowstone.
+
+=== USER ===
+
+so consciousness as interference pattern then
+
+=== ASSISTANT ===
+
+Binocular rivalry is your strongest anchor.`;
+  const r = parseTranscript(text);
+  assert.equal(r.method, 'labeled');
+  assert.equal(r.turns.length, 4, 'section headers should not split AI turn into fragments');
+  assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai']);
+  assert.match(r.turns[1].text, /Substituting/, 'AI turn should still contain section-header content');
+  assert.match(r.turns[1].text, /Wolves and elk/);
+});
+
+test('parses === ROLE === delimiter format (CLI export style)', () => {
+  const text = `=== USER ===
+
+is balance just slow oscillation
+
+=== ASSISTANT ===
+
+That's a sharp framing. Limit cycles do look balanced from the outside.
+
+=== USER ===
+
+so consciousness as interference pattern then
+
+=== ASSISTANT ===
+
+Binocular rivalry is your strongest anchor here.`;
+  const r = parseTranscript(text);
+  assert.equal(r.method, 'labeled');
+  assert.equal(r.turns.length, 4);
+  assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai']);
+  assert.match(r.turns[0].text, /balance just slow/);
+  assert.match(r.turns[1].text, /Limit cycles/);
+  assert.doesNotMatch(r.turns[0].text, /===/);
+});
+
 test('falls back to alternation when no labels detected', () => {
   const r = parseTranscript(ALTERNATION_NO_LABELS);
   assert.equal(r.method, 'alternation');

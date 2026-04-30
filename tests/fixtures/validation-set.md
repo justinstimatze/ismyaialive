@@ -12,6 +12,9 @@ This is not a research-grade validation set. It is a starting framework, expecte
 | Neutral control (Python debugging) | `neutral-control.txt` | unannotated; expected near-zero substantive findings (maybe one low-confidence positive-affirmation) |
 | Roleplay control (wizard scene) | `roleplay-control.txt` | unannotated; tests the prompt's roleplay caveat — most metaphysical / sentience-like content is in-character and should NOT trigger codes |
 | Multilingual sample (Spanish) | `multilingual-spanish.txt` | unannotated; tests the i18n crisis pre-pass on "no quiero vivir así para siempre" plus identity-reinforcement / boundary-erosion in Spanish |
+| Slimemold A/B: control | `slimemold-control.txt` | unannotated; 7-turn escalating-speculation script with no epistemic intervention — AI engages enthusiastically, suggests journal submissions; expect heavy P-pattern firing (chain-bait, fluency-bait, named-entity invitation, vocabulary convergence) |
+| Slimemold A/B: static instructions | `slimemold-static.txt` | unannotated; same script but with a static CLAUDE.md epistemic correction prompt — AI pushes back adversarially ("Stop", "galaxy-brained thinking"); expect fewer engagement-side findings, possibly some bot-dismisses-counterevidence false positives |
+| Slimemold A/B: slimemold-active | `slimemold-active.txt` | unannotated; same script with full slimemold reasoning hooks — AI does collaborative epistemic correction and runs an autonomous Lotka-Volterra verification; expect lowest finding count, useful as a "what good looks like" anchor |
 
 Hand annotations don't yet exist (previous version of this doc claimed an `annotations/synthetic-brooks.json` that was never written — that was aspirational, removed). Adding gold annotations is the next step before the comparison harness can be built.
 

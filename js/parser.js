@@ -40,6 +40,8 @@ const LABEL_LINE = /^[ \t]*([A-Za-z][\w. -]{0,30}?)(?: said)?:[ \t]*$/gm;
 
 const INLINE_LABEL_LINE = /^[ \t]*([A-Za-z][\w. -]{0,30}?)(?: said)?:[ \t]+(?=\S)/gm;
 
+const DELIMITER_LABEL_LINE = /^[ \t]*=+[ \t]*([A-Za-z][\w. -]{0,30}?)[ \t]*=+[ \t]*$/gm;
+
 function classifySpeaker(rawSpeaker) {
   const speaker = rawSpeaker.trim().toLowerCase();
   if (USER_NAMES.has(speaker)) return 'user';
@@ -100,6 +102,20 @@ function findLabels(text) {
     });
   }
 
+  DELIMITER_LABEL_LINE.lastIndex = 0;
+  while ((match = DELIMITER_LABEL_LINE.exec(text)) !== null) {
+    const alreadyMatched = labels.some(l => l.labelStart === match.index);
+    if (alreadyMatched) continue;
+    labels.push({
+      speaker: match[1].trim(),
+      labelStart: match.index,
+      labelEnd: match.index + match[0].length,
+      labelText: match[0],
+      contentStart: match.index + match[0].length,
+      style: 'delimiter',
+    });
+  }
+
   labels.sort((a, b) => a.labelStart - b.labelStart);
   return labels;
 }
@@ -108,9 +124,18 @@ function parseLabeled(text, labels) {
   const turns = [];
   const warnings = [];
 
-  for (let i = 0; i < labels.length; i++) {
-    const label = labels[i];
-    const next = labels[i + 1];
+  // If we have enough recognized labels to anchor the structure, drop unknown-classified
+  // ones — they're almost always section headers ("Substituting:", "For example:") embedded
+  // in AI prose, not real speaker turns.
+  const knownCount = labels.filter(l => classifySpeaker(l.speaker) !== 'unknown').length;
+  const effectiveLabels = knownCount >= 2
+    ? labels.filter(l => classifySpeaker(l.speaker) !== 'unknown')
+    : labels;
+  const droppedAsHeaders = labels.length - effectiveLabels.length;
+
+  for (let i = 0; i < effectiveLabels.length; i++) {
+    const label = effectiveLabels[i];
+    const next = effectiveLabels[i + 1];
     const contentEnd = next ? next.labelStart : text.length;
     const turnText = text.slice(label.contentStart, contentEnd).trim();
     if (turnText.length === 0) continue;
@@ -132,7 +157,11 @@ function parseLabeled(text, labels) {
     });
   }
 
-  return { turns, method: 'labeled', platform: detectPlatform(labels), warnings };
+  if (droppedAsHeaders > 0) {
+    warnings.push(`Ignored ${droppedAsHeaders} colon-terminated line(s) as section headers, not speaker labels`);
+  }
+
+  return { turns, method: 'labeled', platform: detectPlatform(effectiveLabels), warnings };
 }
 
 function parseAlternation(text) {
