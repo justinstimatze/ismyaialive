@@ -1,0 +1,14 @@
+name = "ismyaialive"
+compatibility_date = "2026-04-01"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_KV_ID_FROM_CLOUDFLARE_DASHBOARD"
+
+[vars]
+DAILY_BUDGET_USD = "5.00"
+
+# IP_HASH_SECRET and ANTHROPIC_API_KEY are set as encrypted secrets via:
+#   wrangler pages secret put ANTHROPIC_API_KEY --project-name=ismyaialive
+#   wrangler pages secret put IP_HASH_SECRET --project-name=ismyaialive

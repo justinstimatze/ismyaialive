@@ -45,3 +45,13 @@ tests/screenshots/
 *.py
 __pycache__/
 *.pyc
+
+# Linked Claude Code transcripts (project history; not for commit)
+.transcripts/
+
+# Cloudflare Wrangler local secrets (real ones; .dev.vars.example is committed)
+.dev.vars
+.wrangler/
+
+# defn knowledge-graph data dir
+.defn/

@@ -6,7 +6,7 @@ A privacy-focused tool that helps people analyze their AI conversation transcrip
 
 ## About
 
-Inspired by the story of Allan Brooks, who spent 300+ hours in conversation with ChatGPT before seeking a second opinion, this tool provides a compassionate "second perspective" on AI conversations.
+Inspired by the story of Allan Brooks, who spent 300 hours over 21 days in conversation with ChatGPT before Google Gemini helped him see clearly, this tool provides a compassionate "second perspective" on AI conversations. Brooks's case was reported by Kashmir Hill and Dylan Freedman in The New York Times, August 8, 2025.
 
 We don't store transcripts. We don't judge. We show you patterns.
 
@@ -169,12 +169,12 @@ MIT - see [LICENSE](LICENSE)
 
 ## Acknowledgments
 
-- [Allan Brooks](https://humanlineproject.org) for sharing his story
+- Allan Brooks, for sharing his story and conversation transcripts publicly via the New York Times
 - [Anthropic](https://anthropic.com) for Claude API
-- Research on AI sycophancy that informed our analysis
+- Research on AI sycophancy and delusional spirals that informs our analysis: Sharma et al. 2023 (arxiv 2310.13548), Perez et al. 2022 (arxiv 2212.09251), Moore et al. 2026 (arxiv 2603.16567), Pataranutaporn et al. 2025 (arxiv 2509.11391)
 
 ## Links
 
 - [Website](https://ismyaialive.com)
-- [Human Line Project](https://humanlineproject.org)
-- [NYT Article: Allan Brooks Story](https://www.nytimes.com/2025/01/15/technology/chatgpt-ai-chatbot-mental-health.html)
+- [Human Line Project](https://www.thehumanlineproject.org/)
+- [NYT Article: Hill & Freedman, "Chatbots Can Go Into a Delusional Spiral. Here's How It Happens." (2025-08-08)](https://www.nytimes.com/2025/08/08/technology/ai-chatbots-delusions-chatgpt.html)
