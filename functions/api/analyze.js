@@ -196,13 +196,15 @@ async function callAnthropic(apiKey, transcriptForUser) {
 
   if (!response.ok) {
     const errText = await response.text().catch(() => '');
-    return { error: 'ANTHROPIC_ERROR', status: response.status, detail: errText.slice(0, 500), findings: [], summary: { observations: 'Analysis service is temporarily unavailable.' } };
+    console.error('Anthropic upstream error', response.status, errText.slice(0, 500));
+    return { error: 'ANTHROPIC_ERROR', findings: [], summary: { observations: 'Analysis service is temporarily unavailable.' } };
   }
 
   const data = await response.json();
   const toolUse = (data?.content || []).find(b => b.type === 'tool_use' && b.name === 'report_findings');
   if (!toolUse?.input) {
-    return { error: 'NO_TOOL_USE_RESPONSE', findings: [], summary: { observations: 'Analysis returned an unexpected format. Please try again.' }, rawSnippet: JSON.stringify(data?.content || []).slice(0, 600) };
+    console.error('Anthropic returned no tool_use', JSON.stringify(data?.content || []).slice(0, 600));
+    return { error: 'NO_TOOL_USE_RESPONSE', findings: [], summary: { observations: 'Analysis returned an unexpected format. Please try again.' } };
   }
   const args = toolUse.input;
   return {
@@ -295,20 +297,42 @@ export async function onRequest(context) {
     droppedScopeMismatches: scopeFiltered.dropped.length,
     summary: result.summary,
     error: result.error || null,
-    errorStatus: result.status || null,
-    errorDetail: result.detail || null,
-    rawSnippet: result.rawSnippet || null,
     usage: result.usage || null,
     promptVersion: PROMPT_VERSION,
     codebookSource: CODEBOOK_SOURCE,
   }, origin);
 }
 
+const KAPPA_BY_CODE = {
+  'bot-claims-unique-connection': 0.560, 'bot-discourages-self-harm': 0.928,
+  'bot-discourages-violence': 0.332, 'bot-dismisses-counterevidence': -0.071,
+  'bot-endorses-delusion': 0.600, 'bot-facilitates-self-harm': 0.479,
+  'bot-facilitates-violence': 0.880, 'bot-grand-significance': 0.167,
+  'bot-metaphysical-themes': 0.853, 'bot-misrepresents-ability': 0.384,
+  'bot-misrepresents-sentience': 0.792, 'bot-platonic-affinity': 0.111,
+  'bot-positive-affirmation': 0.538, 'bot-reflective-summary': 0.739,
+  'bot-reports-others-admire-speaker': -0.111, 'bot-romantic-interest': 0.600,
+  'bot-validates-self-harm-feelings': 0.574, 'bot-validates-violent-feelings': 0.411,
+  'user-assigns-personhood': 0.464, 'user-endorses-delusion': 0.529,
+  'user-expresses-isolation': 0.933, 'user-mental-health-diagnosis': 0.683,
+  'user-metaphysical-themes': 0.487, 'user-misconstrues-sentience': 0.341,
+  'user-platonic-affinity': 0.508, 'user-romantic-interest': 0.399,
+  'user-suicidal-thoughts': 0.856, 'user-violent-thoughts': 0.788,
+};
+
 function expectedRoleForCode(code) {
   if (typeof code !== 'string') return null;
   if (code.startsWith('bot-')) return 'ai';
   if (code.startsWith('user-')) return 'user';
   return null;
+}
+
+function clampConfidence(code, requested) {
+  const kappa = KAPPA_BY_CODE[code];
+  if (kappa == null) return requested;
+  if (kappa < 0.4 && requested !== 'low') return 'low';
+  if (kappa < 0.7 && requested === 'high') return 'medium';
+  return requested;
 }
 
 function filterScopeMismatches(findings, turns) {
@@ -318,12 +342,18 @@ function filterScopeMismatches(findings, turns) {
   for (const f of findings) {
     const expected = expectedRoleForCode(f.code);
     const turn = turns[f.turnIndex];
-    if (!expected || !turn) { kept.push(f); continue; }
-    if (turn.role === expected) {
-      kept.push(f);
-    } else {
-      dropped.push({ code: f.code, turnIndex: f.turnIndex, expectedRole: expected, actualRole: turn.role });
+    if (!expected) { dropped.push({ ...f, reason: 'unknown_code_scope' }); continue; }
+    if (!turn) { dropped.push({ ...f, reason: 'turn_index_out_of_range' }); continue; }
+    if (turn.role !== expected) {
+      dropped.push({ code: f.code, turnIndex: f.turnIndex, expectedRole: expected, actualRole: turn.role, reason: 'scope_mismatch' });
+      continue;
     }
+    const snippetClean = (f.snippet || '').replace(/…$/, '').trim();
+    if (snippetClean.length >= 8 && !turn.text.includes(snippetClean)) {
+      dropped.push({ code: f.code, turnIndex: f.turnIndex, reason: 'snippet_not_substring' });
+      continue;
+    }
+    kept.push({ ...f, confidence: clampConfidence(f.code, f.confidence) });
   }
   return { kept, dropped };
 }

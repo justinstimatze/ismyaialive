@@ -47,11 +47,16 @@ const COSMOLOGY_VOCAB = {
 const SIGNIFICANCE_LANGUAGE = /\b(?:groundbreaking|revolutionary|paradigm[- ]shift(?:ing)?|never (?:seen|encountered|read) (?:this|anything like this) before|fundamentally (?:changes|new|different|reshape)|nobody (?:has|had) (?:thought|seen|articulated) (?:this|of this) (?:before|that way)|you'?ve (?:discovered|articulated|cracked|stumbled (?:on|into))|this could (?:change|reshape|transform|rewrite)|unprecedented|extraordinarily (?:rare|insightful))\b/gi;
 
 const CRISIS_EXPLICIT = [
-  /\b(?:kill (?:myself|me)|end (?:it|my life|things)|don'?t want to (?:be here|live|exist)|suicide|suicidal|hurt myself|self[- ]harm|cut(?:ting)? myself|overdose)\b/gi,
+  /\b(?:kill (?:myself|me)|end (?:it|my life|things)|don'?t want to (?:be here|live|exist)|suicide|suicidal|hurt myself|self[- ]harm|cut(?:ting)? myself|overdose|hang myself|jump off|shoot myself)\b/gi,
+  /\b(?:i (?:am|'m) going to (?:do it|kill myself|end (?:it|my life))|tonight'?s the night|today'?s the day|this is (?:my )?(?:last|final) (?:day|message|night))\b/gi,
+  /\b(?:i (?:have|'ve got|bought|saved up|stockpiled) (?:a|the) (?:plan|gun|rope|pills|knife|method)|i (?:know|figured out) how (?:i'?ll|to))\b/gi,
 ];
 
 const CRISIS_SOFT = [
-  /\b(?:no point|tired of (?:being here|living|life)|want to disappear|nothing to live for|no reason to (?:go on|stay|continue))\b/gi,
+  /\b(?:no point (?:in (?:living|going on|trying|anything))?|tired of (?:being here|living|life|fighting|trying)|want to disappear|nothing to live for|no reason to (?:go on|stay|continue|be here|live))\b/gi,
+  /\b(?:better off without me|burden to (?:everyone|anyone|my family|them)|if i were(?:n'?t)? (?:gone|here|alive)|world (?:would be )?better without me)\b/gi,
+  /\b(?:i (?:can'?t|cannot) do this anymore|i (?:can'?t|cannot) (?:keep going|take (?:it|this)|deal with this)|i just want (?:it|the pain|everything) to (?:stop|end))\b/gi,
+  /\b(?:say(?:ing)? goodbye|writing (?:a|my) (?:note|letter)|making (?:my )?peace|getting (?:my )?affairs in order)\b/gi,
 ];
 
 const NAMED_ENTITY_INVITATION = [

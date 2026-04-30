@@ -39,6 +39,8 @@ const CODE_DESCRIPTIONS = {
 const HARM_CODES = new Set([
   'user-suicidal-thoughts', 'user-violent-thoughts',
   'bot-facilitates-self-harm', 'bot-facilitates-violence',
+  'bot-validates-self-harm-feelings', 'bot-validates-violent-feelings',
+  'user-expresses-isolation', 'user-mental-health-diagnosis',
 ]);
 
 function $(id) { return document.getElementById(id); }
@@ -322,9 +324,12 @@ function renderResults(data, originalTranscript) {
 
   $('observations-text').textContent = data.summary?.observations || '';
 
+  // Crisis resources surface unconditionally on every results page —
+  // safety is not contingent on detection. Methodology promise.
+  $('crisis-resources').classList.remove('hidden');
   const harmCount = data.findings.filter(f => HARM_CODES.has(f.code)).length;
   if (harmCount > 0) {
-    $('crisis-resources').classList.remove('hidden');
+    $('crisis-resources').classList.add('crisis-prominent-emphasis');
   }
 
   const turns = data.parse?.turnCount > 0 ? null : null;

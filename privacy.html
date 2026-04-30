@@ -56,7 +56,7 @@
 
                     <p>What we <strong>store ourselves</strong> (in Cloudflare KV, with TTLs that auto-expire):</p>
                     <ul>
-                        <li><strong>Rate-limit counters</strong>: a per-minute, per-hour, per-day counter keyed by an HMAC-SHA256 hash of your IP address mixed with a daily-rotating server secret. The secret rotates every UTC midnight; after rotation, the original IP cannot be recovered from the hash. Counter entries auto-expire within 25 hours.</li>
+                        <li><strong>Rate-limit counters</strong>: a per-minute, per-hour, per-day counter keyed by an HMAC-SHA256 hash of your IP address salted with the current UTC date and a server-held secret. Counter entries auto-expire within 25 hours. The HMAC is collision-resistant; while the secret is held by the operator, the hash for a known IP on a given day can be re-derived. The site does not retain past days' hashes — they expire with the counters they key.</li>
                         <li><strong>Daily cost meter</strong>: total Anthropic API spend so far today (a single number). Auto-expires after 25 hours.</li>
                     </ul>
 
@@ -75,13 +75,7 @@
                     </ul>
 
                     <h3>When you visit our site</h3>
-                    <p>We may use Cloudflare's privacy-respecting Web Analytics for basic page view statistics. This is cookieless, does not fingerprint, and does not track individual users. The data we receive is limited to:</p>
-                    <ul>
-                        <li>Page view counts</li>
-                        <li>Geographic region (country level only)</li>
-                        <li>Referrer information (how you found us)</li>
-                        <li>Device type (mobile/desktop)</li>
-                    </ul>
+                    <p>We do not deploy any analytics product. No analytics beacon, tracking pixel, or third-party script loads on any page. Cloudflare maintains the standard edge access logs described above for security and abuse prevention; we do not access aggregate analytics derived from them.</p>
 
                     <h2>Third Parties</h2>
 
@@ -89,9 +83,9 @@
                     <p>Your transcript is sent to Anthropic's Claude API for analysis. <strong>Important details about Anthropic's data handling:</strong></p>
                     <ul>
                         <li>Anthropic states they do not use API inputs to train their models</li>
-                        <li>However, Anthropic may retain API data for up to 30 days for abuse detection and safety monitoring</li>
-                        <li>This means your transcript data may exist on Anthropic's servers for up to 30 days</li>
-                        <li>We have no control over Anthropic's data retention practices</li>
+                        <li>By default, Anthropic retains API data for up to 30 days for abuse detection and safety monitoring</li>
+                        <li>If Anthropic's safety systems flag content, retention may extend up to 2 years (or longer where required by law). Crisis-language transcripts may be more likely to be flagged than neutral content.</li>
+                        <li>We have no control over Anthropic's data retention or flagging practices</li>
                         <li>See <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic's Privacy Policy</a> and <a href="https://docs.anthropic.com/en/docs/data-privacy" target="_blank" rel="noopener">API Data Privacy documentation</a> for full details</li>
                     </ul>
                     <p class="privacy-note"><em>If you're concerned about this, you may want to remove personally identifiable information from your transcript before submitting.</em></p>
@@ -154,7 +148,7 @@
                     <a href="/for-families.html">For Families</a>
                     <a href="/press.html">Press</a>
                 </div>
-                <p class="footer-note">We do not store your conversations.</p>
+                <p class="footer-note">If you need support: <a href="tel:988">988 (US)</a> · <a href="https://www.thehumanlineproject.org/" target="_blank" rel="noopener">Human Line Project</a> · <a href="/privacy.html">We do not store your conversations.</a></p>
             </div>
         </div>
     </footer>
