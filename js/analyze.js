@@ -70,7 +70,11 @@ function renderFindingItem(f) {
     </div>
     <blockquote class="finding-snippet">"${escapeHtml(f.snippet)}"</blockquote>
     <p class="finding-rationale">${escapeHtml(f.rationale)}</p>
-    <p class="finding-turn"><span class="finding-code-tag">${escapeHtml(f.code)}</span> · turn ${f.turnIndex + 1} (${turnRoleLabel(f.turnIndex)})</p>
+    <p class="finding-turn">Turn ${f.turnIndex + 1} (${turnRoleLabel(f.turnIndex)})</p>
+    <details class="finding-meta-details">
+      <summary>Pattern ID (research code)</summary>
+      <p class="finding-code-tag-block"><code>${escapeHtml(f.code)}</code></p>
+    </details>
   `;
   return item;
 }
