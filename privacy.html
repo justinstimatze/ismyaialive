@@ -54,21 +54,24 @@
                         <li>The transcript is discarded from memory—it is never saved to disk or database</li>
                     </ol>
 
-                    <p>What we <strong>do</strong> log:</p>
+                    <p>What we <strong>store ourselves</strong> (in Cloudflare KV, with TTLs that auto-expire):</p>
                     <ul>
-                        <li>Timestamp of the request</li>
-                        <li>Which AI platform you selected (ChatGPT, Claude, etc.)</li>
-                        <li>Length of the transcript (character count only)</li>
-                        <li>Whether crisis content was detected (boolean, no content)</li>
-                        <li>First 8 characters of your IP address (for rate limiting and abuse detection)</li>
+                        <li><strong>Rate-limit counters</strong>: a per-minute, per-hour, per-day counter keyed by an HMAC-SHA256 hash of your IP address mixed with a daily-rotating server secret. The secret rotates every UTC midnight; after rotation, the original IP cannot be recovered from the hash. Counter entries auto-expire within 25 hours.</li>
+                        <li><strong>Daily cost meter</strong>: total Anthropic API spend so far today (a single number). Auto-expires after 25 hours.</li>
                     </ul>
 
-                    <p>What we <strong>do NOT</strong> log:</p>
+                    <p>What we <strong>never</strong> store:</p>
                     <ul>
-                        <li>The content of your transcript</li>
-                        <li>The content of the analysis</li>
-                        <li>Your full IP address</li>
-                        <li>Any personally identifiable information</li>
+                        <li>The content of your transcript (the request body is read once, sent to Anthropic, and discarded)</li>
+                        <li>The content of the analysis (returned to you and discarded)</li>
+                        <li>Your IP address in unhashed form</li>
+                        <li>Account, session, or any cross-request identifiers</li>
+                    </ul>
+
+                    <p>What <strong>Cloudflare</strong> (our hosting and CDN) maintains independently of our code, as part of standard edge logging for security and abuse prevention:</p>
+                    <ul>
+                        <li>IP address, user agent, timestamp, request path, response status</li>
+                        <li>These are Cloudflare's standard server logs, retained per <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>. They include metadata for any request to our domain but never the request body.</li>
                     </ul>
 
                     <h3>When you visit our site</h3>

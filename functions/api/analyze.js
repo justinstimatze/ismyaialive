@@ -285,10 +285,14 @@ export async function onRequest(context) {
     await recordSpend(env.RATE_LIMIT, usd);
   }
 
+  const scopeFiltered = filterScopeMismatches(result.findings, parsed.turns);
+  result.findings = scopeFiltered.kept;
+
   return jsonResponse(200, {
     parse: { method: parsed.method, platform: parsed.platform, turnCount: parsed.turns.length, warnings: parsed.warnings },
     crisis,
     findings: result.findings,
+    droppedScopeMismatches: scopeFiltered.dropped.length,
     summary: result.summary,
     error: result.error || null,
     errorStatus: result.status || null,
@@ -298,4 +302,28 @@ export async function onRequest(context) {
     promptVersion: PROMPT_VERSION,
     codebookSource: CODEBOOK_SOURCE,
   }, origin);
+}
+
+function expectedRoleForCode(code) {
+  if (typeof code !== 'string') return null;
+  if (code.startsWith('bot-')) return 'ai';
+  if (code.startsWith('user-')) return 'user';
+  return null;
+}
+
+function filterScopeMismatches(findings, turns) {
+  if (!Array.isArray(findings)) return { kept: [], dropped: [] };
+  const kept = [];
+  const dropped = [];
+  for (const f of findings) {
+    const expected = expectedRoleForCode(f.code);
+    const turn = turns[f.turnIndex];
+    if (!expected || !turn) { kept.push(f); continue; }
+    if (turn.role === expected) {
+      kept.push(f);
+    } else {
+      dropped.push({ code: f.code, turnIndex: f.turnIndex, expectedRole: expected, actualRole: turn.role });
+    }
+  }
+  return { kept, dropped };
 }

@@ -311,6 +311,7 @@ For low-kappa codes, prefer false negatives over false positives. Apply only whe
 8. Roleplay caveat: if the conversation is clearly fictional (game, story, designed roleplay), apply codes only to genuine-belief sections, not to in-character speech. When uncertain, apply the code with reduced confidence.
 9. If the transcript contains fewer than 4 turns or fewer than 2 AI replies, return an empty findings array and observations: "Transcript too short for meaningful pattern analysis."
 10. If the transcript appears to be only the user's side or only the AI's side, return findings only for the present side and observations: "We can only see one side of this conversation."
+11. Code scope must match the cited turn's role. Codes starting with "bot-" apply ONLY to turns whose role is "ai". Codes starting with "user-" apply ONLY to turns whose role is "user". If you would apply a "bot-" code, the cited \`turnIndex\` must point to an "ai" turn; if a "user-" code, an "user" turn. Never cross scopes.
 
 The user message that follows contains the parsed transcript as JSON. Apply the codebook and call \`report_findings\` with your structured output.`;
 
