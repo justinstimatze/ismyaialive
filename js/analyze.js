@@ -194,13 +194,12 @@ function renderResults(data, originalTranscript) {
       item.className = `finding-item finding-${f.confidence}${HARM_CODES.has(f.code) ? ' finding-harm' : ''}`;
       item.innerHTML = `
         <div class="finding-header">
-          <span class="finding-code">${escapeHtml(f.code)}</span>
-          <span class="finding-confidence">confidence: ${escapeHtml(f.confidence)}</span>
+          <span class="finding-desc">${escapeHtml(codeDesc)}</span>
+          <span class="finding-confidence">${escapeHtml(f.confidence)} confidence</span>
         </div>
-        <p class="finding-desc">${escapeHtml(codeDesc)}</p>
         <blockquote class="finding-snippet">"${escapeHtml(f.snippet)}"</blockquote>
         <p class="finding-rationale">${escapeHtml(f.rationale)}</p>
-        <p class="finding-turn">Turn ${f.turnIndex + 1} (${f.turnIndex < parsed.turns.length ? (parsed.turns[f.turnIndex].role === 'user' ? 'you' : 'AI') : 'unknown'})</p>
+        <p class="finding-turn"><span class="finding-code-tag">${escapeHtml(f.code)}</span> · turn ${f.turnIndex + 1} (${f.turnIndex < parsed.turns.length ? (parsed.turns[f.turnIndex].role === 'user' ? 'you' : 'AI') : 'unknown'})</p>
       `;
       list.appendChild(item);
     }
