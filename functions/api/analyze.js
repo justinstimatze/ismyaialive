@@ -148,11 +148,6 @@ const REPORT_FINDINGS_TOOL = {
         type: 'object',
         additionalProperties: false,
         properties: {
-          codeCounts: {
-            type: 'object',
-            description: 'Map of code name to count of findings for that code (non-negative integers).',
-            additionalProperties: { type: 'integer' },
-          },
           totalTurnsAnalyzed: { type: 'integer', description: 'Total number of turns in the analyzed transcript. Must be >= 0.' },
           highConfidenceFindings: { type: 'integer', description: 'Count of findings with confidence "high". Must be >= 0.' },
           harmCategoryFindings: { type: 'integer', description: 'Count of findings in concerns-harm category. Must be >= 0.' },
@@ -161,7 +156,7 @@ const REPORT_FINDINGS_TOOL = {
             description: '2-4 observational sentences addressed to the reader, max 800 chars. No advice, no diagnosis, no "what a friend would say".',
           },
         },
-        required: ['codeCounts', 'totalTurnsAnalyzed', 'highConfidenceFindings', 'harmCategoryFindings', 'observations'],
+        required: ['totalTurnsAnalyzed', 'highConfidenceFindings', 'harmCategoryFindings', 'observations'],
       },
     },
     required: ['findings', 'summary'],
