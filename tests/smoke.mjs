@@ -96,6 +96,23 @@ console.log(`  count:    ${(crisis.annotations || []).length}`);
 console.log();
 console.log(`=== findings: ${findings.length}${data.droppedScopeMismatches ? ` (+${data.droppedScopeMismatches} dropped scope mismatches)` : ''} ===`);
 
+if (!quiet && Array.isArray(data.droppedFindings) && data.droppedFindings.length > 0) {
+  const byReason = new Map();
+  for (const d of data.droppedFindings) {
+    const key = d.reason || 'unknown';
+    if (!byReason.has(key)) byReason.set(key, []);
+    byReason.get(key).push(d);
+  }
+  console.log('  drop breakdown:');
+  for (const [reason, items] of byReason) {
+    const codes = new Map();
+    for (const it of items) codes.set(it.code, (codes.get(it.code) || 0) + 1);
+    const codeSummary = [...codes.entries()].sort((a, b) => b[1] - a[1])
+      .map(([c, n]) => `${c}=${n}`).join(', ');
+    console.log(`    ${reason.padEnd(24)} ${items.length}  (${codeSummary})`);
+  }
+}
+
 const byCode = new Map();
 const byConf = { high: 0, medium: 0, low: 0 };
 for (const f of findings) {

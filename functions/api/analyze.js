@@ -358,6 +358,7 @@ export async function onRequest(context) {
     crisis,
     findings: result.findings,
     droppedScopeMismatches: scopeFiltered.dropped.length,
+    droppedFindings: scopeFiltered.dropped, // privacy-safe: code + reason only, no snippet text
     summary: result.summary,
     error: result.error || null,
     usage: result.usage || null,
@@ -418,11 +419,21 @@ function filterScopeMismatches(findings, turns) {
   if (!Array.isArray(findings)) return { kept: [], dropped: [] };
   const kept = [];
   const dropped = [];
+  // Drop entries are privacy-safe: we never include the rationale or snippet
+  // text from the model output — only the structural metadata (code,
+  // turnIndex, reason, optional expected/actual role) that we need to
+  // diagnose why the model picked a wrong-role or a non-verbatim turn.
   for (const f of findings) {
     const expected = expectedRoleForCode(f.code);
     const turn = turns[f.turnIndex];
-    if (!expected) { dropped.push({ ...f, reason: 'unknown_code_scope' }); continue; }
-    if (!turn) { dropped.push({ ...f, reason: 'turn_index_out_of_range' }); continue; }
+    if (!expected) {
+      dropped.push({ code: f.code, turnIndex: f.turnIndex, reason: 'unknown_code_scope' });
+      continue;
+    }
+    if (!turn) {
+      dropped.push({ code: f.code, turnIndex: f.turnIndex, reason: 'turn_index_out_of_range' });
+      continue;
+    }
     if (turn.role !== expected) {
       dropped.push({ code: f.code, turnIndex: f.turnIndex, expectedRole: expected, actualRole: turn.role, reason: 'scope_mismatch' });
       continue;
