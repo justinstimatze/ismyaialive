@@ -389,3 +389,27 @@ mark.finding-highlight {
   color: #777;
   font-size: 0.9rem;
 }
+
+/* "What this is, what this isn't" panel — sits between findings and
+   annotated transcript. Subtle alt-surface so it reads as commentary,
+   not another findings block. Higher specificity than .result-section
+   alone because both classes are present on the element. */
+.result-section.limits-section {
+  background: #f8fafc;
+  border-left: 4px solid #cbd5e1;
+  padding: 1rem 1.25rem;
+  box-shadow: none;
+}
+
+.result-section.limits-section h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.result-section.limits-section p {
+  margin-bottom: 0.75rem;
+}
+
+.result-section.limits-section p:last-child {
+  margin-bottom: 0;
+}
