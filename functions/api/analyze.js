@@ -3,7 +3,7 @@ import { runCrisisOnly } from '../../js/matchers.js';
 import { SYSTEM_PROMPT, PROMPT_VERSION, CODEBOOK_SOURCE } from './system-prompt.js';
 
 const MIN_LENGTH = 200;
-const MAX_LENGTH = 100_000;
+const MAX_LENGTH = 300_000;
 
 const RATE_LIMITS = {
   PER_MINUTE: 1,

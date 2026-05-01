@@ -2,7 +2,7 @@ import { parseTranscript } from './parser.js';
 import { runCrisisOnly, runMatchers } from './matchers.js';
 
 const MIN_LENGTH = 200;
-const MAX_LENGTH = 100_000;
+const MAX_LENGTH = 300_000;
 const PREPASS_DEBOUNCE_MS = 400;
 
 const CODE_DESCRIPTIONS = {
@@ -627,11 +627,70 @@ function setupLoadingMessages() {
   observer.observe(loading, { attributes: true, attributeFilter: ['class'] });
 }
 
+function buildShareableReport() {
+  const observations = $('observations-text')?.textContent?.trim() || '';
+  const findings = state.findings || [];
+
+  const lines = [];
+  lines.push('ismyaialive.com — analysis report');
+  lines.push('https://ismyaialive.com');
+  lines.push('');
+  lines.push(`Patterns found: ${findings.length}`);
+  if (findings.length > 0) {
+    const byCode = new Map();
+    for (const f of findings) byCode.set(f.code, (byCode.get(f.code) || 0) + 1);
+    const sorted = [...byCode.entries()].sort((a, b) => b[1] - a[1]);
+    for (const [code, n] of sorted) {
+      const desc = CODE_DESCRIPTIONS[code] || '';
+      lines.push(`  · ${code}${n > 1 ? ` (×${n})` : ''}${desc ? ` — ${desc}` : ''}`);
+    }
+  }
+  lines.push('');
+  if (observations) {
+    lines.push('What we noticed:');
+    lines.push(observations);
+    lines.push('');
+  }
+  lines.push('Note: this is a structured read of patterns, not a diagnosis or verdict.');
+  lines.push('Recognizing a pattern doesn\'t break it — that usually takes another person.');
+  lines.push('');
+  lines.push('No transcript content is included in this report.');
+  lines.push('No transcript is stored on ismyaialive.com.');
+  return lines.join('\n');
+}
+
 function setupResultActions() {
   $('error-dismiss')?.addEventListener('click', hideError);
   $('analyze-another-btn')?.addEventListener('click', () => {
     try { sessionStorage.removeItem('ismyaialive.draft'); } catch { /* sessionStorage may be unavailable (private mode, quota, disabled) */ }
     location.reload();
+  });
+  $('share-report-btn')?.addEventListener('click', async () => {
+    const status = $('share-report-status');
+    const text = buildShareableReport();
+    try {
+      await navigator.clipboard.writeText(text);
+      if (status) {
+        status.textContent = 'Copied. Paste it wherever you want.';
+        status.classList.add('share-report-status-success');
+        setTimeout(() => {
+          status.textContent = '';
+          status.classList.remove('share-report-status-success');
+        }, 4000);
+      }
+    } catch {
+      if (status) {
+        status.textContent = 'Copy failed. Select the report text in the box below and copy manually.';
+        const fallback = document.createElement('textarea');
+        fallback.className = 'share-report-fallback';
+        fallback.readOnly = true;
+        fallback.rows = 10;
+        fallback.value = text;
+        status.parentElement?.insertBefore(fallback, status.nextSibling);
+        fallback.focus();
+        fallback.select();
+      }
+    }
   });
 }
 

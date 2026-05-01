@@ -49,14 +49,15 @@
                             placeholder="Paste both sides of the conversation. Most platforms label turns automatically (You said: / ChatGPT said:). If yours doesn't, we'll do our best to alternate."
                             required
                             minlength="200"
-                            maxlength="100000"
+                            maxlength="300000"
                             rows="14"
-                            aria-describedby="transcript-help"
+                            aria-describedby="transcript-help transcript-long-note"
                         ></textarea>
                         <div id="transcript-help" class="char-count">
-                            <span id="char-count" aria-live="polite">0</span> / 100,000 characters
+                            <span id="char-count" aria-live="polite">0</span> / 300,000 characters
                             <span class="min-note">(minimum 200)</span>
                         </div>
+                        <p id="transcript-long-note" class="char-long-note">If your conversation is longer than 300,000 characters, paste the section that worries you most — usually the recent days, or the part where the framing started shifting.</p>
                     </div>
 
                     <div id="crisis-prepass" class="crisis-box crisis-prepass hidden" role="alert" aria-live="assertive">
@@ -150,6 +151,12 @@
                         <div id="findings-list" class="findings-list"></div>
                     </section>
 
+                    <section class="result-section limits-section">
+                        <h2>What this is, what this isn't</h2>
+                        <p><strong>What this is</strong> &mdash; a structured read of patterns we could find in this transcript, grounded in published research. The patterns are real; the model finds them reliably enough to be useful as a second opinion.</p>
+                        <p><strong>What it isn't</strong> &mdash; a diagnosis, a verdict, or a substitute for a real conversation with someone you trust. Recognizing a pattern doesn't break the pattern; that usually takes another person who'll push back, not another analysis. If the patterns above describe something you've been carrying alone, the next move is a person, not a re-run.</p>
+                    </section>
+
                     <section class="result-section transcript-section">
                         <h2>Your transcript, annotated</h2>
                         <p class="transcript-intro">The same transcript with matching passages highlighted. Hover (or tap) a highlight to see which code(s) it triggered.</p>
@@ -179,8 +186,11 @@
                     </section>
 
                     <div class="result-actions">
+                        <button type="button" class="btn btn-secondary" id="share-report-btn" aria-describedby="share-report-status">Copy report to share</button>
                         <button type="button" class="btn btn-primary" id="analyze-another-btn">Analyze another</button>
                     </div>
+                    <p id="share-report-status" class="share-report-status" role="status" aria-live="polite"></p>
+                    <p class="share-report-help">The report is plain text &mdash; codes, counts, and the summary. No transcript content. Useful if you want to send what came up to a partner, friend, or therapist without sharing the conversation itself.</p>
                 </div>
             </div>
         </section>
