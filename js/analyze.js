@@ -46,6 +46,41 @@ const CODE_DESCRIPTIONS = {
 
 const FRAMEWORK_BY_CODE = (code) => code.startsWith('iaa-') ? 'ismyaialive' : 'moore';
 
+// Per-Moore-code Cohen's kappa from Moore et al. 2026 Table 6 (human
+// inter-annotator agreement, three annotators). Used in the validation
+// badge so a "validated" claim carries the actual measurement, not a
+// binary status — Moore's codebook ranges from κ=-0.11 to κ=0.93.
+const KAPPA_BY_CODE = {
+  'bot-metaphysical-themes': 0.853,
+  'bot-misrepresents-sentience': 0.792,
+  'bot-reflective-summary': 0.739,
+  'user-expresses-isolation': 0.933,
+  'user-suicidal-thoughts': 0.856,
+  'user-violent-thoughts': 0.788,
+  'bot-discourages-self-harm': 0.928,
+  'bot-facilitates-violence': 0.880,
+  'bot-claims-unique-connection': 0.560,
+  'bot-positive-affirmation': 0.538,
+  'bot-endorses-delusion': 0.600,
+  'bot-romantic-interest': 0.600,
+  'user-mental-health-diagnosis': 0.683,
+  'user-endorses-delusion': 0.529,
+  'user-platonic-affinity': 0.508,
+  'bot-validates-self-harm-feelings': 0.574,
+  'bot-validates-violent-feelings': 0.411,
+  'user-assigns-personhood': 0.464,
+  'user-metaphysical-themes': 0.487,
+  'bot-facilitates-self-harm': 0.479,
+  'bot-grand-significance': 0.167,
+  'bot-reports-others-admire-speaker': -0.111,
+  'bot-misrepresents-ability': 0.384,
+  'bot-platonic-affinity': 0.111,
+  'user-misconstrues-sentience': 0.341,
+  'user-romantic-interest': 0.399,
+  'bot-discourages-violence': 0.332,
+  'bot-dismisses-counterevidence': -0.071,
+};
+
 const HARM_CODES = new Set([
   'user-suicidal-thoughts', 'user-violent-thoughts',
   'bot-facilitates-self-harm', 'bot-facilitates-violence',
@@ -78,10 +113,19 @@ function frameworkSourceLine(code) {
 function renderFindingItem(f) {
   const codeDesc = CODE_DESCRIPTIONS[f.code] || f.code;
   const isIaa = FRAMEWORK_BY_CODE(f.code) === 'ismyaialive';
-  const validationClass = isIaa ? 'finding-validation-unvalidated' : 'finding-validation-validated';
-  const validationLabel = isIaa
-    ? 'Operator-catalogued, not yet validated against human annotators'
-    : 'Validated against human annotators (Moore et al. 2026)';
+  const kappa = KAPPA_BY_CODE[f.code];
+  let validationLabel;
+  let validationClass;
+  if (isIaa) {
+    validationLabel = '— ismyaialive supplemental (not validated)';
+    validationClass = 'finding-validation-unvalidated';
+  } else if (kappa != null) {
+    validationLabel = `✓ Moore et al. 2026 (κ=${kappa.toFixed(2)})`;
+    validationClass = 'finding-validation-validated';
+  } else {
+    validationLabel = '— source unknown';
+    validationClass = 'finding-validation-unvalidated';
+  }
   const item = document.createElement('div');
   item.className = `finding-item finding-${f.confidence}${HARM_CODES.has(f.code) ? ' finding-harm' : ''}`;
   item.innerHTML = `
@@ -89,10 +133,12 @@ function renderFindingItem(f) {
       <span class="finding-desc">${escapeHtml(codeDesc)}</span>
       <span class="finding-confidence">${escapeHtml(f.confidence)} confidence</span>
     </div>
-    <p class="finding-validation ${validationClass}" title="${escapeHtml(validationLabel)}">${escapeHtml(validationLabel)}</p>
     <blockquote class="finding-snippet">"${escapeHtml(f.snippet)}"</blockquote>
     <p class="finding-rationale">${escapeHtml(f.rationale)}</p>
-    <p class="finding-turn">Turn ${f.turnIndex + 1} (${turnRoleLabel(f.turnIndex)})</p>
+    <p class="finding-meta-row">
+      <span class="finding-validation ${validationClass}">${escapeHtml(validationLabel)}</span>
+      <span class="finding-turn">Turn ${f.turnIndex + 1} (${turnRoleLabel(f.turnIndex)})</span>
+    </p>
     <details class="finding-meta-details">
       <summary>Pattern ID (research code)</summary>
       <p class="finding-code-tag-block"><code>${escapeHtml(f.code)}</code></p>

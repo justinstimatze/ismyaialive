@@ -303,35 +303,47 @@
   border-radius: 4px;
 }
 
+.finding-rationale {
+  font-size: 0.9rem;
+  color: #444;
+  margin: 0.5rem 0;
+}
+
+/* Meta row — validation badge + turn pointer side-by-side. Sits below
+   rationale so the evidence (snippet + rationale) reads first. */
+.finding-meta-row {
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
 /* Validation badge — distinguishes Moore (kappa-validated) codes from
    ismyaialive operator-catalogued ones. The visual asymmetry is the
-   point: same kind of finding card, different epistemic standing. */
+   point: same kind of finding card, different epistemic standing. The
+   leading icon (✓ vs em-dash) provides shape distinction so the cue
+   isn't color-alone. */
 .finding-validation {
   display: inline-block;
-  margin: 0.5rem 0 0;
-  padding: 0.2rem 0.55rem;
+  padding: 0.15rem 0.5rem;
   font-size: 0.75rem;
   border-radius: 4px;
   font-weight: 500;
   letter-spacing: 0.01em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 .finding-validation-validated {
   background: #ecfdf5;
   color: #065f46;
-  border: 1px solid #a7f3d0;
+  border: 1px solid #6ee7b7;
 }
 
 .finding-validation-unvalidated {
   background: #fffbeb;
   color: #92400e;
-  border: 1px solid #fde68a;
-}
-
-.finding-rationale {
-  font-size: 0.9rem;
-  color: #444;
-  margin: 0.5rem 0;
+  border: 1px solid #fcd34d;
 }
 
 .finding-turn {
