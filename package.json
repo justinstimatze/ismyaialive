@@ -12,6 +12,7 @@
     "smoke:local": "ISMYAIALIVE_URL=http://localhost:8788 node tests/smoke.mjs",
     "regression": "node scripts/run-regression.mjs",
     "regression:update": "node scripts/run-regression.mjs --update-baseline",
+    "docs:prompt": "node scripts/regen-prompt-md.mjs",
     "deploy": "wrangler pages deploy . --project-name=ismyaialive"
   },
   "engines": {
