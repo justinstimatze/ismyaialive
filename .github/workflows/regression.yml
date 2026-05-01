@@ -1,0 +1,51 @@
+name: regression
+
+# Weekly run of the fixture regression harness. Calls Anthropic directly
+# (not the deployed Worker) so it doesn't consume the site's daily budget
+# or hit the per-IP rate limit. Compares finding counts and drop rates to
+# tests/regression-baseline.json and fails if drift exceeds tolerances.
+#
+# Cost per run: ~$0.10 (7 fixtures × ~$0.014 each).
+#
+# To update the baseline after an intentional prompt change:
+#   ANTHROPIC_API_KEY=sk-ant-... node scripts/run-regression.mjs --update-baseline
+#   git add tests/regression-baseline.json && git commit
+
+on:
+  schedule:
+    # Every Monday at 14:00 UTC (mid-day Pacific Sunday)
+    - cron: '0 14 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: Run regression harness
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/run-regression.mjs
+      - name: Open issue on regression
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Regression harness drift on ${new Date().toISOString().slice(0, 10)}`;
+            const body = `Weekly regression run failed. See [the workflow log](${context.payload.repository.html_url}/actions/runs/${context.runId}) for which fixtures drifted.\n\nIf the drift is from an intentional prompt change, regenerate the baseline:\n\n\`\`\`bash\nANTHROPIC_API_KEY=sk-ant-... node scripts/run-regression.mjs --update-baseline\ngit add tests/regression-baseline.json && git commit\n\`\`\``;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['regression'],
+            });

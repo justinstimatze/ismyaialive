@@ -48,9 +48,9 @@ export default [
     },
   },
 
-  // Node test scripts
+  // Node test + tooling scripts
   {
-    files: ['tests/**/*.{js,mjs}', 'eslint.config.js'],
+    files: ['tests/**/*.{js,mjs}', 'scripts/**/*.{js,mjs}', 'eslint.config.js'],
     languageOptions: {
       globals: { ...globals.node },
     },

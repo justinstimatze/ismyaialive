@@ -10,6 +10,8 @@
     "lint": "eslint .",
     "smoke": "node tests/smoke.mjs",
     "smoke:local": "ISMYAIALIVE_URL=http://localhost:8788 node tests/smoke.mjs",
+    "regression": "node scripts/run-regression.mjs",
+    "regression:update": "node scripts/run-regression.mjs --update-baseline",
     "deploy": "wrangler pages deploy . --project-name=ismyaialive"
   },
   "engines": {
