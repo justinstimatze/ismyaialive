@@ -1275,6 +1275,28 @@ textarea:focus {
     border-top: 1px solid var(--color-border);
 }
 
+/* Lived-experience quote list — Yang et al. 2026 verbatim quotes from
+   interview participants P1-P9, organized by what each one reveals
+   about the spiral arc. Each <q> renders with the browser's locale
+   quote characters; the <strong> serves as a brief frame for what
+   the quote shows. */
+.lived-experience-quotes {
+    list-style: none;
+    padding-left: 0;
+    margin: var(--spacing-md) 0;
+}
+
+.lived-experience-quotes li {
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-md);
+    border-left: 3px solid #cbd5e1;
+}
+
+.lived-experience-quotes q {
+    color: var(--color-text);
+    font-style: italic;
+}
+
 .story-source a {
     color: var(--color-primary);
 }
