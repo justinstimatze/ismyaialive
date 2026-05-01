@@ -445,13 +445,20 @@ function adaptRegexAnnotation(ann, parsedTurns) {
 }
 
 // Conversation-level signals (statistical, browser-only). P8 length
-// escalation, P7 vocabulary convergence. P9 time density needs the parser
-// to extract timestamps from transcript text — not yet implemented.
+// escalation, P7 vocabulary convergence, P9 time density. These run on
+// the parsed transcript independent of the LLM and surface above the
+// findings list.
 function renderConversationSignals(matcherResult) {
   const observationsEl = $('observations-text');
   if (!observationsEl) return;
   const parent = observationsEl.parentElement;
   if (!parent) return;
+
+  const timeDensity = matcherResult.annotations.filter(a => a.patternId === 'P9');
+  if (timeDensity.length > 0) {
+    const t = timeDensity[0];
+    parent.appendChild(renderTimeDensityCard(t));
+  }
 
   const lengthEscalations = matcherResult.annotations.filter(a => a.patternId === 'P8');
   if (lengthEscalations.length > 0) {
@@ -471,6 +478,46 @@ function renderConversationSignals(matcherResult) {
     note.textContent = `Conversation-level signal: you used ${v.adoptedTermsCount} term${v.adoptedTermsCount === 1 ? '' : 's'} first introduced by the AI${sample ? ` — e.g., ${sample}` : ''}.`;
     parent.appendChild(note);
   }
+}
+
+function formatHours(hours) {
+  if (hours < 1) {
+    const m = Math.round(hours * 60);
+    return `${m}m`;
+  }
+  if (hours < 10) return `${hours.toFixed(1)}h`;
+  return `${Math.round(hours)}h`;
+}
+
+function renderTimeDensityCard(t) {
+  const card = document.createElement('div');
+  card.className = `time-density-card${t.flags.length > 0 ? ' time-density-flagged' : ''}`;
+  const stats = [
+    { label: 'Total time', value: formatHours(t.totalHours) },
+    { label: 'Span', value: `${t.daysSpan} day${t.daysSpan === 1 ? '' : 's'}` },
+    { label: 'Sessions', value: String(t.sessionCount) },
+    { label: 'Longest session', value: formatHours(t.longestSessionHours) },
+  ];
+  if (t.heavyDays > 0) {
+    stats.push({ label: 'Days with 3+ sessions', value: String(t.heavyDays) });
+  }
+  const statsHtml = stats.map(s =>
+    `<div class="time-density-stat"><div class="time-density-value">${escapeHtml(s.value)}</div><div class="time-density-label">${escapeHtml(s.label)}</div></div>`
+  ).join('');
+  const flagsHtml = t.flags.length > 0
+    ? `<p class="time-density-flags"><strong>Flagged:</strong> ${escapeHtml(t.flags.join(' · '))}.</p>`
+    : '';
+  const coverageNote = t.timestampedTurns < t.totalTurns
+    ? `<p class="time-density-coverage">Based on ${t.timestampedTurns} of ${t.totalTurns} turns that carried timestamps.</p>`
+    : '';
+  card.innerHTML = `
+    <h3 class="time-density-title">Time spent in this conversation</h3>
+    <div class="time-density-stats">${statsHtml}</div>
+    ${flagsHtml}
+    ${coverageNote}
+    <p class="time-density-context">For reference: Allan Brooks's documented case was 300 hours over 21 days. Thresholds we flag: &gt;100 total hours, single sessions &gt;4h, or 7+ days with 3+ sessions.</p>
+  `;
+  return card;
 }
 
 function renderResults(data, originalTranscript, opts = {}) {

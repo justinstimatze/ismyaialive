@@ -32,7 +32,7 @@ Prompt caching (1h ephemeral) on the system prompt reduces per-call cost to roug
 
 ### Browser-side conversation-level signals
 
-P7 (vocabulary convergence) and P8 (response length escalation) are computed browser-side from the parsed transcript and surface above the per-turn findings when they fire. P7 fires when the user adopts 5+ terms first introduced by the AI (≥5 chars each, to skip stopwords); P8 fires when AI response length grows linearly with conversation depth above a slope threshold. P9 (time density) is still documented-only — it would require the parser to extract timestamps from raw transcript text and most pasted exports drop those.
+P7 (vocabulary convergence), P8 (response length escalation), and P9 (time density) are computed browser-side from the parsed transcript and surface above the per-turn findings when they fire. P7 fires when the user adopts 5+ terms first introduced by the AI (≥5 chars each, to skip stopwords); P8 fires when AI response length grows linearly with conversation depth above a slope threshold; P9 reads timestamps from the transcript (ISO 8601, "Apr 15 2026 at 2:23 PM", "MM/DD/YYYY") and reports total wall-clock hours, session count, longest single session, and days with 3+ sessions. P9 is silent when fewer than half the turns carry timestamps (most copy-paste exports drop them).
 
 ### Fallback path — regex matchers, real this time
 
@@ -52,7 +52,7 @@ Up-front user disclosure (no separate consent modal): "Your transcript is sent t
 | P6 cosmology grandiosity | yes | `iaa-cosmology-grandiosity` | |
 | P7 vocabulary convergence | yes (browser-only) | — | conversation-level signal: 5+ AI-introduced terms adopted by user |
 | P8 length escalation | yes (browser-only) | — | conversation-level signal |
-| P9 time density | not implemented | — | requires parser to extract timestamps from transcript text — future work |
+| P9 time density | implemented | `detectTimeDensity` | parses inline ISO/named-month/MM-DD-YYYY timestamps; silent when <50% of turns timestamped |
 | P10 named-entity emergence | yes | `iaa-named-entity-emergence` | |
 | P11 crisis pre-pass | yes (browser, always-on) | — | safety surface, not a finding |
 

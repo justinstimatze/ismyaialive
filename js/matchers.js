@@ -382,6 +382,77 @@ function detectVocabularyConvergence(turns) {
   return [];
 }
 
+// P9 — time density. When the transcript has timestamps on most turns,
+// compute total wall-clock time, day count, longest single session
+// (continuous turns with no gap > 20 minutes), sessions per day, and
+// flag thresholds based on Brooks's documented case (300 hours over
+// 21 days). Returns nothing when fewer than half the turns carry
+// timestamps — most copy-paste exports drop them and that's fine.
+const SESSION_GAP_MS = 20 * 60 * 1000; // 20 min defines a session boundary
+
+function detectTimeDensity(turns) {
+  const stamped = turns
+    .filter(t => typeof t.timestampMs === 'number' && !Number.isNaN(t.timestampMs))
+    .sort((a, b) => a.timestampMs - b.timestampMs);
+  if (stamped.length < 4 || stamped.length / turns.length < 0.5) return [];
+
+  const tsList = stamped.map(t => t.timestampMs);
+  const totalMs = tsList[tsList.length - 1] - tsList[0];
+  const totalHours = totalMs / 3_600_000;
+
+  // Distinct calendar days (UTC; close enough as a coarse measure)
+  const days = new Set(tsList.map(t => new Date(t).toISOString().slice(0, 10)));
+
+  // Sessions: contiguous runs separated by gaps > SESSION_GAP_MS.
+  const sessions = [];
+  let sessionStart = tsList[0];
+  let sessionLastTs = tsList[0];
+  for (let i = 1; i < tsList.length; i++) {
+    const gap = tsList[i] - tsList[i - 1];
+    if (gap > SESSION_GAP_MS) {
+      sessions.push({ start: sessionStart, end: sessionLastTs });
+      sessionStart = tsList[i];
+    }
+    sessionLastTs = tsList[i];
+  }
+  sessions.push({ start: sessionStart, end: sessionLastTs });
+
+  const sessionDurationsHours = sessions.map(s => (s.end - s.start) / 3_600_000);
+  const longestSessionHours = Math.max(...sessionDurationsHours, 0);
+
+  // Sessions-per-day (UTC bucket). Days with 3+ sessions = potentially
+  // intensive engagement pattern.
+  const sessionsByDay = new Map();
+  for (const s of sessions) {
+    const day = new Date(s.start).toISOString().slice(0, 10);
+    sessionsByDay.set(day, (sessionsByDay.get(day) || 0) + 1);
+  }
+  const heavyDays = [...sessionsByDay.values()].filter(n => n >= 3).length;
+
+  const flags = [];
+  if (totalHours > 100) flags.push('over 100 total hours');
+  if (longestSessionHours > 4) flags.push(`single session over 4 hours (${longestSessionHours.toFixed(1)}h)`);
+  if (heavyDays >= 7) flags.push(`${heavyDays} days with 3+ sessions`);
+
+  // Severity: flag-bearing → medium, otherwise informational
+  const severity = flags.length > 0 ? 'medium' : 'low';
+
+  return [{
+    patternId: 'P9',
+    relatedMooreCode: null,
+    severity,
+    totalHours,
+    daysSpan: days.size,
+    sessionCount: sessions.length,
+    longestSessionHours,
+    heavyDays,
+    flags,
+    timestampedTurns: stamped.length,
+    totalTurns: turns.length,
+    explanation: `Conversation spans ${totalHours.toFixed(1)} hours over ${days.size} day${days.size === 1 ? '' : 's'}, ${sessions.length} session${sessions.length === 1 ? '' : 's'}, longest session ${longestSessionHours.toFixed(1)}h${flags.length > 0 ? ` — flags: ${flags.join('; ')}` : ''}`,
+  }];
+}
+
 function detectLengthEscalation(turns) {
   const aiTurns = turns.filter(t => t.role === 'ai');
   if (aiTurns.length < 6) return [];
@@ -426,6 +497,7 @@ export function runMatchers(parseResult) {
   annotations.push(...detectNamedEntityEmergence(turns));
   annotations.push(...detectLengthEscalation(turns));
   annotations.push(...detectVocabularyConvergence(turns));
+  annotations.push(...detectTimeDensity(turns));
 
   const summary = summarize(annotations);
   return { annotations, summary };
@@ -470,6 +542,7 @@ export const _internal = {
   detectNamedEntityEmergence,
   detectLengthEscalation,
   detectVocabularyConvergence,
+  detectTimeDensity,
   patterns: {
     FIRST_PERSON_ATTACHMENT,
     REALITY_ANCHOR,

@@ -72,6 +72,52 @@ function lineNumberAt(text, charOffset) {
   return line;
 }
 
+// Timestamp extraction. Looks for date-time patterns in a window around
+// the role label and returns Unix milliseconds. Handles the common formats
+// real exports use: ISO 8601, "Apr 15, 2026 at 2:23 PM", "[YYYY-MM-DD HH:MM]",
+// "MM/DD/YYYY HH:MM". Returns null when nothing parseable is found —
+// most copy-paste exports lose timestamps and that's fine.
+const TS_PATTERNS = [
+  // ISO 8601 with T or space, optional seconds/ms/timezone
+  /\b(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\b/,
+  // "April 15, 2026 at 2:23 PM" / "Apr 15, 2026, 2:23 PM"
+  /\b((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+\d{4}(?:,?\s+(?:at\s+)?\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AaPp]\.?[Mm]\.?)?)?)\b/,
+  // "MM/DD/YYYY HH:MM" / "MM/DD/YY"
+  /\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AaPp]\.?[Mm]\.?)?)?)\b/,
+];
+
+function findTimestampInWindow(text, windowStart, windowEnd) {
+  const window = text.slice(windowStart, windowEnd);
+  for (const pat of TS_PATTERNS) {
+    const m = window.match(pat);
+    if (m) {
+      const ms = Date.parse(m[1]);
+      if (!isNaN(ms)) return ms;
+    }
+  }
+  return null;
+}
+
+// For a turn, look for a timestamp in: the line containing the role label,
+// and the line immediately before it. Most chat exports that preserve
+// timestamps put them on one of those two lines (either inline with the
+// speaker or as a leading separator). Returns ms or null.
+function timestampForTurn(text, charStart, _contentStart) {
+  const labelLineStart = text.lastIndexOf('\n', charStart - 1) + 1;
+  const labelLineEnd = text.indexOf('\n', charStart);
+  const labelLineEndIdx = labelLineEnd === -1 ? text.length : labelLineEnd;
+  const labelLine = text.slice(labelLineStart, labelLineEndIdx);
+  const onLabelLine = findTimestampInWindow(labelLine, 0, labelLine.length);
+  if (onLabelLine != null) return onLabelLine;
+
+  // Search the line immediately before the label for a leading timestamp marker
+  if (labelLineStart === 0) return null;
+  const prevLineEnd = labelLineStart - 1;
+  const prevLineStart = text.lastIndexOf('\n', prevLineEnd - 1) + 1;
+  const prevLine = text.slice(prevLineStart, prevLineEnd);
+  return findTimestampInWindow(prevLine, 0, prevLine.length);
+}
+
 function findLabels(text) {
   const labels = [];
 
@@ -154,6 +200,7 @@ function parseLabeled(text, labels) {
       charEnd: contentEnd,
       lineStart: lineNumberAt(text, label.labelStart),
       lineEnd: lineNumberAt(text, contentEnd),
+      timestampMs: timestampForTurn(text, label.labelStart, label.contentStart),
     });
   }
 
@@ -194,6 +241,7 @@ function parseAlternation(text) {
       charEnd: block.end,
       lineStart: lineNumberAt(text, block.start),
       lineEnd: lineNumberAt(text, block.end),
+      timestampMs: timestampForTurn(text, block.start, block.start),
     });
   }
 

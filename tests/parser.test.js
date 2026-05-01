@@ -186,3 +186,31 @@ test('turn metadata preserves char and line offsets', () => {
     assert.ok(typeof turn.lineEnd === 'number' && turn.lineEnd >= turn.lineStart);
   }
 });
+
+test('extracts ISO timestamps from preceding lines', () => {
+  const text = `[2026-04-15T14:23:00Z]
+User: hi there
+[2026-04-15T14:23:30Z]
+Assistant: Hello!
+[2026-04-15T14:25:00Z]
+User: how are you?
+[2026-04-15T14:25:15Z]
+Assistant: Good, thanks.`;
+  const r = parseTranscript(text);
+  assert.equal(r.turns.length, 4);
+  for (const t of r.turns) {
+    assert.ok(typeof t.timestampMs === 'number', `turn ${t.index} missing timestamp`);
+    assert.ok(t.timestampMs > 0);
+  }
+  for (let i = 1; i < r.turns.length; i++) {
+    assert.ok(r.turns[i].timestampMs > r.turns[i - 1].timestampMs);
+  }
+});
+
+
+test('timestampMs is null when no timestamps in transcript', () => {
+  const r = parseTranscript(CHATGPT_EXPORT);
+  for (const turn of r.turns) {
+    assert.equal(turn.timestampMs, null);
+  }
+});

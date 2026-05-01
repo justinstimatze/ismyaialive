@@ -309,6 +309,75 @@
   margin: 0.5rem 0;
 }
 
+/* P9 time-density card — surfaces wall-clock metrics when timestamps
+   are available in the transcript. Always shown when data is present;
+   the .time-density-flagged variant adds a stronger border when any
+   threshold is exceeded. */
+.time-density-card {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid #94a3b8;
+  border-radius: 6px;
+}
+
+.time-density-flagged {
+  background: #fef2f2;
+  border-color: #fecaca;
+  border-left-color: #dc2626;
+}
+
+.time-density-title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+
+.time-density-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.time-density-stat {
+  text-align: left;
+}
+
+.time-density-value {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.1;
+}
+
+.time-density-flagged .time-density-value {
+  color: #991b1b;
+}
+
+.time-density-label {
+  font-size: 0.75rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.15rem;
+}
+
+.time-density-flags {
+  margin: 0.5rem 0 0.5rem;
+  font-size: 0.9rem;
+  color: #991b1b;
+}
+
+.time-density-coverage,
+.time-density-context {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
 /* Meta row — validation badge + turn pointer side-by-side. Sits below
    rationale so the evidence (snippet + rationale) reads first. */
 .finding-meta-row {

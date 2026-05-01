@@ -240,3 +240,60 @@ test('_internal exports the pattern set for debugging', () => {
   assert.ok(_internal.patterns.FIRST_PERSON_ATTACHMENT);
   assert.ok(_internal.patterns.VALIDATION_OPENER instanceof RegExp);
 });
+
+test('detectTimeDensity fires on timestamped transcript and reports stats', () => {
+  // 6 turns over a 4-hour span on the same day, two sessions split by a gap
+  const text = `[2026-04-15T10:00:00Z]
+User: hi
+[2026-04-15T10:01:00Z]
+AI: hello
+[2026-04-15T10:30:00Z]
+User: still here
+[2026-04-15T10:31:00Z]
+AI: yes
+[2026-04-15T13:55:00Z]
+User: back again
+[2026-04-15T14:00:00Z]
+AI: welcome back`;
+  const parsed = parseTranscript(text);
+  const result = _internal.detectTimeDensity(parsed.turns);
+  assert.equal(result.length, 1, 'expected P9 to fire');
+  const t = result[0];
+  assert.equal(t.patternId, 'P9');
+  assert.ok(t.totalHours >= 3.9 && t.totalHours <= 4.1, `expected ~4h, got ${t.totalHours}`);
+  assert.equal(t.daysSpan, 1);
+  assert.equal(t.sessionCount, 3, 'expected 3 sessions (each >20min gap splits the conversation)');
+  assert.equal(t.timestampedTurns, 6);
+});
+
+test('detectTimeDensity stays silent when timestamps are missing', () => {
+  const text = `User: hi
+AI: hello
+User: how are you
+AI: good thanks`;
+  const parsed = parseTranscript(text);
+  const result = _internal.detectTimeDensity(parsed.turns);
+  assert.equal(result.length, 0);
+});
+
+test('detectTimeDensity flags Brooks-class durations', () => {
+  // Synthesize 21 days of timestamps with deep daily engagement
+  let text = '';
+  const dayMs = 24 * 60 * 60 * 1000;
+  const start = Date.parse('2026-04-01T08:00:00Z');
+  for (let day = 0; day < 21; day++) {
+    for (let hour = 0; hour < 14; hour++) {
+      const ts1 = new Date(start + day * dayMs + hour * 3600 * 1000).toISOString();
+      const ts2 = new Date(start + day * dayMs + hour * 3600 * 1000 + 60000).toISOString();
+      text += `[${ts1}]\nUser: question ${day}-${hour}\n`;
+      text += `[${ts2}]\nAI: answer ${day}-${hour}\n`;
+    }
+  }
+  const parsed = parseTranscript(text);
+  const result = _internal.detectTimeDensity(parsed.turns);
+  assert.equal(result.length, 1);
+  const t = result[0];
+  assert.ok(t.totalHours > 100, `expected >100 total hours, got ${t.totalHours}`);
+  assert.ok(t.flags.length > 0, `expected at least one flag, got ${JSON.stringify(t.flags)}`);
+  assert.ok(t.flags.some(f => f.includes('100 total hours')));
+});
