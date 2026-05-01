@@ -77,6 +77,11 @@ function frameworkSourceLine(code) {
 
 function renderFindingItem(f) {
   const codeDesc = CODE_DESCRIPTIONS[f.code] || f.code;
+  const isIaa = FRAMEWORK_BY_CODE(f.code) === 'ismyaialive';
+  const validationClass = isIaa ? 'finding-validation-unvalidated' : 'finding-validation-validated';
+  const validationLabel = isIaa
+    ? 'Operator-catalogued, not yet validated against human annotators'
+    : 'Validated against human annotators (Moore et al. 2026)';
   const item = document.createElement('div');
   item.className = `finding-item finding-${f.confidence}${HARM_CODES.has(f.code) ? ' finding-harm' : ''}`;
   item.innerHTML = `
@@ -84,6 +89,7 @@ function renderFindingItem(f) {
       <span class="finding-desc">${escapeHtml(codeDesc)}</span>
       <span class="finding-confidence">${escapeHtml(f.confidence)} confidence</span>
     </div>
+    <p class="finding-validation ${validationClass}" title="${escapeHtml(validationLabel)}">${escapeHtml(validationLabel)}</p>
     <blockquote class="finding-snippet">"${escapeHtml(f.snippet)}"</blockquote>
     <p class="finding-rationale">${escapeHtml(f.rationale)}</p>
     <p class="finding-turn">Turn ${f.turnIndex + 1} (${turnRoleLabel(f.turnIndex)})</p>

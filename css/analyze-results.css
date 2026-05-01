@@ -303,6 +303,31 @@
   border-radius: 4px;
 }
 
+/* Validation badge — distinguishes Moore (kappa-validated) codes from
+   ismyaialive operator-catalogued ones. The visual asymmetry is the
+   point: same kind of finding card, different epistemic standing. */
+.finding-validation {
+  display: inline-block;
+  margin: 0.5rem 0 0;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.finding-validation-validated {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.finding-validation-unvalidated {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
 .finding-rationale {
   font-size: 0.9rem;
   color: #444;

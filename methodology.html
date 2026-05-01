@@ -105,6 +105,7 @@
                     <p>Also: the code-level inter-annotator agreement Moore et al. report is between three human annotators. Their automated annotator (Gemini 3 Flash) had moderate agreement against humans (Cohen's κ = 0.566 overall, with substantial per-code variance — see Tables 5 and 6 of the paper). Our use of Claude Haiku 4.5 instead of Gemini 3 Flash is a substitution we have not validated against the same held-out set; we report this as a known gap rather than claim parity. A held-out fixture is in <code>tests/fixtures/validation-set.md</code> as the start of an internal validation effort.</p>
 
                     <h2>Reliability calibration</h2>
+                    <p>The kappa-based confidence ceiling described below is a heuristic, not a probabilistic calibration of our annotator. We have not measured Claude Haiku 4.5's per-code accuracy against held-out human labels — that would be the actual calibration. The cap is a "we'd be embarrassed at this confidence on a low-agreement code" guard rail, applied uniformly. Read it that way.</p>
                     <p>Moore et al. report inter-annotator agreement (Cohen's kappa) for each code. We use that as a hard ceiling on our confidence labels:</p>
                     <ul>
                         <li><strong>"high"</strong> — only on codes whose human inter-annotator kappa is above 0.7. Examples: <code>bot-metaphysical-themes</code> (0.853), <code>user-suicidal-thoughts</code> (0.856), <code>user-expresses-isolation</code> (0.933).</li>
