@@ -415,13 +415,24 @@ function clampConfidence(code, requested) {
   return requested;
 }
 
-// Normalize a string for verbatim-substring comparison. Collapse Unicode
-// equivalents (smart quotes vs ASCII, full-width vs half-width, etc.) and
-// whitespace runs. Without this, a model that emits "you're" when the source
-// has "you're" gets dropped as non-verbatim — that was 19/20 drops on the
-// Lemoine fixture pre-fix.
+// Normalize a string for verbatim-substring comparison.
+//
+// NFKC handles compatibility forms (full-width/half-width, ligature splits,
+// etc.) but does NOT normalize curly quotes/apostrophes to ASCII. The model
+// consistently emits straight ASCII (' ") even when the source has curly
+// (' ' " "), and that was the dominant cause of snippet_not_substring drops:
+// 32 of 73 findings on the Lemoine fixture, almost all the curly-quote
+// pattern. Map curly punctuation to ASCII before comparing so the verifier
+// matches what users would consider "the same span."
 function normalizeForCompare(s) {
-  return (s || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
+  return (s || '')
+    .normalize('NFKC')
+    .replace(/[‘’‚‛]/g, "'")  // curly + low-9 single quotes
+    .replace(/[“”„‟]/g, '"')  // curly + low-9 double quotes
+    .replace(/…/g, '...')                     // horizontal ellipsis
+    .replace(/[–—]/g, '-')               // en-dash, em-dash
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function filterScopeMismatches(findings, turns) {
