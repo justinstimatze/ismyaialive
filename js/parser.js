@@ -86,36 +86,61 @@ const TS_PATTERNS = [
   /\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AaPp]\.?[Mm]\.?)?)?)\b/,
 ];
 
+// Date.parse rejects "Apr 15, 2026 at 2:23 PM" (the " at " is non-standard
+// for V8); strip it so the rest of the human-readable date parses cleanly.
+function parseTimestamp(raw) {
+  const cleaned = raw.replace(/\s+at\s+/, ' ');
+  const ms = Date.parse(cleaned);
+  return Number.isNaN(ms) ? null : ms;
+}
+
 function findTimestampInWindow(text, windowStart, windowEnd) {
   const window = text.slice(windowStart, windowEnd);
   for (const pat of TS_PATTERNS) {
     const m = window.match(pat);
     if (m) {
-      const ms = Date.parse(m[1]);
-      if (!isNaN(ms)) return ms;
+      const ms = parseTimestamp(m[1]);
+      if (ms != null) return ms;
     }
   }
   return null;
 }
 
-// For a turn, look for a timestamp in: the line containing the role label,
-// and the line immediately before it. Most chat exports that preserve
-// timestamps put them on one of those two lines (either inline with the
-// speaker or as a leading separator). Returns ms or null.
-function timestampForTurn(text, charStart, _contentStart) {
+// Stricter: only succeeds if the trimmed line (minus surrounding brackets
+// or parens) IS a timestamp, not just contains one. Prevents false matches
+// where a previous turn's content happens to mention a date.
+function timestampFromSeparatorLine(line) {
+  const trimmed = line.trim().replace(/^[[(]/, '').replace(/[\])]$/, '').trim();
+  if (trimmed.length === 0 || trimmed.length > 50) return null;
+  for (const pat of TS_PATTERNS) {
+    const m = trimmed.match(pat);
+    if (m && m[1] === trimmed) {
+      const ms = parseTimestamp(m[1]);
+      if (ms != null) return ms;
+    }
+  }
+  return null;
+}
+
+// For a turn, look for a timestamp in: the label header (from line start
+// up to where content begins, NOT the inline content after the colon),
+// and the line immediately before the label. Searching only the header
+// avoids false positives from dates mentioned inside turn content like
+// "I started studying physics on March 15, 2025."
+function timestampForTurn(text, charStart, contentStart) {
   const labelLineStart = text.lastIndexOf('\n', charStart - 1) + 1;
   const labelLineEnd = text.indexOf('\n', charStart);
   const labelLineEndIdx = labelLineEnd === -1 ? text.length : labelLineEnd;
-  const labelLine = text.slice(labelLineStart, labelLineEndIdx);
-  const onLabelLine = findTimestampInWindow(labelLine, 0, labelLine.length);
-  if (onLabelLine != null) return onLabelLine;
+  const headerEnd = Math.min(contentStart, labelLineEndIdx);
+  const labelHeader = text.slice(labelLineStart, headerEnd);
+  const onHeader = findTimestampInWindow(labelHeader, 0, labelHeader.length);
+  if (onHeader != null) return onHeader;
 
-  // Search the line immediately before the label for a leading timestamp marker
   if (labelLineStart === 0) return null;
   const prevLineEnd = labelLineStart - 1;
   const prevLineStart = text.lastIndexOf('\n', prevLineEnd - 1) + 1;
   const prevLine = text.slice(prevLineStart, prevLineEnd);
-  return findTimestampInWindow(prevLine, 0, prevLine.length);
+  return timestampFromSeparatorLine(prevLine);
 }
 
 function findLabels(text) {

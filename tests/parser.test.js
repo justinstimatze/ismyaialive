@@ -214,3 +214,31 @@ test('timestampMs is null when no timestamps in transcript', () => {
     assert.equal(turn.timestampMs, null);
   }
 });
+
+test('extracts month-name timestamps from preceding lines', () => {
+  const text = `Apr 15, 2026 at 2:23 PM
+User: hi
+April 15, 2026 at 2:24 PM
+Assistant: hello`;
+  const r = parseTranscript(text);
+  assert.equal(r.turns.length, 2);
+  assert.ok(typeof r.turns[0].timestampMs === 'number');
+  assert.ok(typeof r.turns[1].timestampMs === 'number');
+  assert.ok(r.turns[1].timestampMs > r.turns[0].timestampMs);
+});
+
+test('does not falsely match dates inside turn content', () => {
+  // Inline-style label with a date inside the user's message — must NOT
+  // be picked up as the turn's timestamp. Only the label header should
+  // be searched on the label line.
+  const text = `User: I started studying physics on March 15, 2025 and have been at it ever since.
+Assistant: That's a long road.
+User: yeah
+Assistant: where did you begin?`;
+  const r = parseTranscript(text);
+  assert.equal(r.turns.length, 4);
+  for (const turn of r.turns) {
+    assert.equal(turn.timestampMs, null,
+      `turn ${turn.index} should not match content dates as timestamps`);
+  }
+});

@@ -421,18 +421,37 @@ function detectTimeDensity(turns) {
   const longestSessionHours = Math.max(...sessionDurationsHours, 0);
 
   // Sessions-per-day (UTC bucket). Days with 3+ sessions = potentially
-  // intensive engagement pattern.
+  // intensive engagement pattern. Track consecutive-heavy-day runs
+  // separately because the patterns.md threshold is "7+ consecutive
+  // days with 3+ sessions" — non-consecutive heavy days don't qualify.
   const sessionsByDay = new Map();
   for (const s of sessions) {
     const day = new Date(s.start).toISOString().slice(0, 10);
     sessionsByDay.set(day, (sessionsByDay.get(day) || 0) + 1);
   }
-  const heavyDays = [...sessionsByDay.values()].filter(n => n >= 3).length;
+  const heavyDates = [...sessionsByDay.entries()]
+    .filter(([, n]) => n >= 3)
+    .map(([day]) => day)
+    .sort();
+  const heavyDays = heavyDates.length;
+  let longestConsecutiveHeavy = 0;
+  let currentRun = 0;
+  let prevTs = null;
+  for (const day of heavyDates) {
+    const ts = Date.parse(`${day}T00:00:00Z`);
+    if (prevTs != null && ts - prevTs === 86_400_000) {
+      currentRun++;
+    } else {
+      currentRun = 1;
+    }
+    if (currentRun > longestConsecutiveHeavy) longestConsecutiveHeavy = currentRun;
+    prevTs = ts;
+  }
 
   const flags = [];
   if (totalHours > 100) flags.push('over 100 total hours');
   if (longestSessionHours > 4) flags.push(`single session over 4 hours (${longestSessionHours.toFixed(1)}h)`);
-  if (heavyDays >= 7) flags.push(`${heavyDays} days with 3+ sessions`);
+  if (longestConsecutiveHeavy >= 7) flags.push(`${longestConsecutiveHeavy} consecutive days with 3+ sessions`);
 
   // Severity: flag-bearing → medium, otherwise informational
   const severity = flags.length > 0 ? 'medium' : 'low';
@@ -446,6 +465,7 @@ function detectTimeDensity(turns) {
     sessionCount: sessions.length,
     longestSessionHours,
     heavyDays,
+    longestConsecutiveHeavy,
     flags,
     timestampedTurns: stamped.length,
     totalTurns: turns.length,

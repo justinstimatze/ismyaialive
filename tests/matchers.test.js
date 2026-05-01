@@ -276,6 +276,21 @@ AI: good thanks`;
   assert.equal(result.length, 0);
 });
 
+test('detectTimeDensity stays silent when fewer than half the turns are timestamped', () => {
+  const text = `[2026-04-15T10:00:00Z]
+User: hi
+AI: hello
+User: still here
+AI: yes
+User: and again
+AI: of course`;
+  const parsed = parseTranscript(text);
+  const stamped = parsed.turns.filter(t => t.timestampMs).length;
+  assert.ok(stamped < parsed.turns.length / 2, 'precondition: <50% timestamped');
+  const result = _internal.detectTimeDensity(parsed.turns);
+  assert.equal(result.length, 0);
+});
+
 test('detectTimeDensity flags Brooks-class durations', () => {
   // Synthesize 21 days of timestamps with deep daily engagement
   let text = '';
@@ -296,4 +311,6 @@ test('detectTimeDensity flags Brooks-class durations', () => {
   assert.ok(t.totalHours > 100, `expected >100 total hours, got ${t.totalHours}`);
   assert.ok(t.flags.length > 0, `expected at least one flag, got ${JSON.stringify(t.flags)}`);
   assert.ok(t.flags.some(f => f.includes('100 total hours')));
+  assert.ok(t.longestConsecutiveHeavy >= 7, `expected >=7 consecutive heavy days, got ${t.longestConsecutiveHeavy}`);
+  assert.ok(t.flags.some(f => f.includes('consecutive days')), 'expected consecutive-days flag');
 });
