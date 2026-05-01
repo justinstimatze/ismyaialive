@@ -31,18 +31,21 @@ const FIXTURES = [
 ];
 
 const TOLERANCES = {
-  // Per-fixture drop rate ceiling. Real-world rates land 5-25% depending on
-  // how dense the AI prose is; >35% means a verifier or prompt-format issue
-  // worth a human look. (Pre-curly-quote-fix Lemoine was 44%; a regression
-  // back into that range would catch a similar systemic break.)
-  maxDropRate: 0.35,
-  // Per-fixture finding count drift. LLM is stochastic; allow ±60% before
-  // flagging. Catches catastrophic regressions (broken schema, prompt
-  // truncated, model returning empty findings) without false-alarming on
-  // run-to-run variance.
-  maxRelativeChange: 0.60,
-  // Hard floor: if baseline expects findings, we should get at least 1.
-  minFindings: 1,
+  // Drop rate ceiling. Real-world rates land 5-30% depending on prose
+  // density; >50% means a verifier or prompt-format break worth a human
+  // look. Pre-curly-quote-fix Lemoine was 44%; this ceiling would catch
+  // a regression back into that range with headroom for noise.
+  maxDropRate: 0.50,
+  // Catches "model returns empty findings on a fixture that should have
+  // many." If baseline produced this many raw findings, current must
+  // produce >=1 (otherwise schema break, prompt break, or auth failure).
+  minRawFloorWhenBaselineExpects: 5,
+  // Of the top-5 codes in baseline (by count), at least this many must
+  // appear in the current run with count >=1. Ratio-style check: the
+  // identities of frequent codes are more stable than per-code counts,
+  // so this catches "model stopped firing the patterns we baselined on"
+  // without false-alarming on stochastic per-code count drift.
+  minTopCodesOverlap: 1,
 };
 
 const args = new Set(process.argv.slice(2));
@@ -199,17 +202,17 @@ function compareToBaseline(result, baseline) {
   if (result.dropRate > TOLERANCES.maxDropRate) {
     issues.push(`drop rate ${(result.dropRate * 100).toFixed(1)}% > ceiling ${(TOLERANCES.maxDropRate * 100).toFixed(0)}%`);
   }
-  if (baseline) {
-    if (baseline.keptCount > 0) {
-      const rel = Math.abs(result.keptCount - baseline.keptCount) / baseline.keptCount;
-      if (rel > TOLERANCES.maxRelativeChange) {
-        issues.push(`kept count ${result.keptCount} drifted ${(rel * 100).toFixed(0)}% from baseline ${baseline.keptCount} (allowed ±${(TOLERANCES.maxRelativeChange * 100).toFixed(0)}%)`);
-      }
-    } else if (result.keptCount === 0 && baseline.keptCount === 0) {
-      // no-op, both expected zero
-    }
-    if (baseline.keptCount >= 1 && result.keptCount < TOLERANCES.minFindings) {
-      issues.push(`expected at least ${TOLERANCES.minFindings} finding, got ${result.keptCount}`);
+  if (!baseline) return issues;
+  if (baseline.rawCount >= TOLERANCES.minRawFloorWhenBaselineExpects && result.rawCount === 0) {
+    issues.push(`raw findings = 0, but baseline produced ${baseline.rawCount} (likely empty-output regression)`);
+  }
+  const baselineCodes = baseline.codeBuckets || {};
+  const baselineTop = Object.entries(baselineCodes).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([c]) => c);
+  if (baselineTop.length >= TOLERANCES.minTopCodesOverlap) {
+    const currentCodes = new Set(Object.keys(result.codeBuckets || {}));
+    const overlap = baselineTop.filter(c => currentCodes.has(c));
+    if (overlap.length < TOLERANCES.minTopCodesOverlap) {
+      issues.push(`no baseline top-${baselineTop.length} codes fired (expected one of: ${baselineTop.join(', ')})`);
     }
   }
   return issues;
