@@ -1939,13 +1939,23 @@ input[type="radio"]:focus-visible + span {
     outline-offset: 2px;
 }
 
-/* Character count accessibility - text indicator in addition to color */
+/* Character count accessibility — text + color indicator together so
+   the cue isn't color-only. */
+.char-count.char-warning {
+    color: #92400e;
+}
+
 .char-count.char-warning::after {
     content: " (below minimum)";
 }
 
+.char-count.char-over {
+    color: #b91c1c;
+    font-weight: 500;
+}
+
 .char-count.char-over::after {
-    content: " (approaching limit)";
+    content: " (over the limit — trim to submit)";
 }
 
 /* High contrast mode support */

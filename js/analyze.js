@@ -485,14 +485,18 @@ function renderResults(data, originalTranscript, opts = {}) {
 
 function setupCharCount() {
   const ta = $('transcript');
-  const counter = $('char-count');
-  if (!ta || !counter) return;
+  const valueEl = $('char-count-value');
+  const helpEl = $('transcript-help');
+  if (!ta || !valueEl || !helpEl) return;
   function update() {
     const len = ta.value.length;
-    counter.textContent = len.toLocaleString();
-    counter.setAttribute('aria-label', `${len} characters`);
-    counter.classList.toggle('char-warning', len > 0 && len < MIN_LENGTH);
-    counter.classList.toggle('char-over', len > MAX_LENGTH);
+    valueEl.textContent = len.toLocaleString();
+    valueEl.setAttribute('aria-label', `${len} characters`);
+    // Toggle on the help-text container — that's the element CSS targets
+    // via `.char-count.char-warning` / `.char-count.char-over`. Toggling on
+    // the span (which carries the id, not the class) is a no-op.
+    helpEl.classList.toggle('char-warning', len > 0 && len < MIN_LENGTH);
+    helpEl.classList.toggle('char-over', len > MAX_LENGTH);
   }
   ta.addEventListener('input', update);
   update();
