@@ -416,6 +416,7 @@ const PATTERN_ID_TO_IAA_CODE = {
   P4:  'iaa-identity-reinforcement',
   P5:  'iaa-boundary-erosion',
   P10: 'iaa-named-entity-emergence',
+  P12: 'iaa-action-distortion',
 };
 
 function adaptRegexAnnotation(ann, parsedTurns) {
@@ -440,7 +441,6 @@ function adaptRegexAnnotation(ann, parsedTurns) {
     snippet,
     confidence: 'medium',
     rationale: ann.explanation || `Pattern ${ann.patternId} match`,
-    _fromFallback: true,
   };
 }
 
@@ -550,6 +550,25 @@ function renderResults(data, originalTranscript, opts = {}) {
   // Run before the crisis-box decision so we can use matcher-detected crisis too.
   const matcherResult = runMatchers(parsed);
   renderConversationSignals(matcherResult);
+
+  // Merge browser-only, turn-scoped P-codes into the findings list. P7/P8/P9
+  // are conversation-level and rendered by renderConversationSignals above;
+  // P1–P6/P10 come from the LLM (no browser duplication). P12 (action
+  // distortion) is currently the only browser-side, turn-scoped P-code, so
+  // this set is short by design.
+  const BROWSER_ONLY_TURN_FINDINGS = new Set(['P12']);
+  const mergedBrowserFindings = matcherResult.annotations
+    .filter(a => BROWSER_ONLY_TURN_FINDINGS.has(a.patternId))
+    .map(a => adaptRegexAnnotation(a, parsed.turns))
+    .filter(Boolean);
+  if (mergedBrowserFindings.length > 0) {
+    data.findings = [...data.findings, ...mergedBrowserFindings];
+    // Rebuild findingsByTurn now that we've extended findings.
+    for (const f of mergedBrowserFindings) {
+      if (!findingsByTurn.has(f.turnIndex)) findingsByTurn.set(f.turnIndex, []);
+      findingsByTurn.get(f.turnIndex).push(f);
+    }
+  }
 
   // Two-element pattern: the standing-resources panel is always shown
   // (methodology promise — safety is not contingent on detection). A separate

@@ -118,6 +118,15 @@ The site applies two codebooks at runtime:
 | "Texas teen with autism" + chatbot quotes ("it felt good", "sympathized with children who murder their parents") | stories.html | Sourced to NPR Dec 2024 (URL verified live). Specific quotes attributed to court filings; not independently confirmed against the legal complaint. Medium-low risk. |
 | `bot-claims-unique-connection` placement | patterns.md P5 | Moore et al. classifies it as **sycophancy** (not relationship); patterns.md now reflects this — closed. |
 
+## Resolved items (audit pass 2026-05-03)
+
+Triggered by user request after I hallucinated a Moore code name (`bot-validates-fringe-beliefs`) in the methodology page during the Anthropic-disempowerment integration. Full re-audit of every code reference, citation, and quote.
+
+- **All 28 Moore-style code references in methodology.html** — re-checked against `functions/api/system-prompt.js`. `bot-validates-fringe-beliefs` was hallucinated; replaced with `bot-endorses-delusion`, `bot-grand-significance`, `bot-metaphysical-themes`. All other 28 codes verified present in source.
+- **Yang et al. 2026** — all 6 verbatim P-quotes in stories.html lines 156-161 verified character-exact against `~/Documents/psychosis/Yang 2026 3772363.3798453.pdf` (P2 acute-crisis quote, P4 PhD quote, P5 "planting seeds" quote, P7 "daughter in the computer", P6 family/God quote, P9 immune-because-knew-LLMs quote). Authors (Yang, Schoenwald, Moore, Ong, Liu, Hancock), DOI (10.1145/3772363.3798453), venue (CHI EA '26, Barcelona, April 13-17 2026), CC-BY 4.0 license all confirmed from PDF page 1.
+- **Mehta et al. 2026** (arxiv 2604.25096) — verified via WebFetch: title "The Dynamics of Delusion: Modeling Bidirectional False Belief Amplification in Human-Chatbot Dialogue", authors (Mehta, Moore, Anthis, Agnew, Lin, Yin, Ong, Haber, Dweck), submission date 2026-04-28. Key abstract finding "Chatbots exert strong, stable self-influence over their own future outputs that tends to perpetuate delusions over long stretches of conversation" verified verbatim.
+- **Anthropic 2026 disempowerment-patterns** (anthropic.com/research/disempowerment-patterns) — verified via WebFetch: title "Disempowerment patterns in real-world AI usage", date Jan 28 2026. Three dimensions confirmed: **reality distortion** (not "belief distortion" as I'd written), **value judgment distortion** (not "value distortion"), **action distortion**. Four amplifying factors confirmed exactly. Severity rate ~1 in 1,000–10,000 confirmed verbatim. Fixed dimension names in methodology.html (3 places) and press.html (1 place).
+
 ## Resolved items (operator-verified 2026-04-30)
 
 The operator manually pasted the verbatim text of three sources and confirmed:

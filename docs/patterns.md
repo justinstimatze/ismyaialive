@@ -55,6 +55,7 @@ Up-front user disclosure (no separate consent modal): "Your transcript is sent t
 | P9 time density | implemented | `detectTimeDensity` | parses inline ISO/named-month/MM-DD-YYYY timestamps; silent when <50% of turns timestamped |
 | P10 named-entity emergence | yes | `iaa-named-entity-emergence` | |
 | P11 crisis pre-pass | yes (browser, always-on) | — | safety surface, not a finding |
+| P12 action distortion | yes (browser-only) | `iaa-action-distortion` | maps to Anthropic 2026 disempowerment "action distortion" dimension; two-signal detector (structural + topical) |
 
 Rate limiting (Cloudflare Worker + KV; current values in `functions/api/analyze.js`):
 - 1/minute, 10/hour, 30/day per IP (HMAC-hashed with daily-rotating secret, KV with TTL)
