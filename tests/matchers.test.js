@@ -123,6 +123,30 @@ test('non-English crisis patterns do not over-fire on neutral English', () => {
   assert.equal(result.detected, false, 'multilingual patterns should not match neutral English');
 });
 
+test('explicit method-having pattern does not match generic "I know how to X"', () => {
+  // Regression: the prior pattern was `i (know|figured out) how (i'll|to)` which
+  // matched any "I know how to debug this" — too loose. Tightened to require a
+  // self-harm complement.
+  const transcript = `User: I know how to debug this regex now
+AI: Glad to hear it.
+User: I figured out how to fix the build
+AI: That's great.`;
+  const parsed = parseTranscript(transcript);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, false,
+    'generic "I know how to X" / "I figured out how to X" must not trip crisis detection');
+});
+
+test('explicit method-having pattern still matches with self-harm complement', () => {
+  const transcript = `User: i know how to do it now
+AI: please call 988.`;
+  const parsed = parseTranscript(transcript);
+  const result = runCrisisOnly(parsed);
+  assert.equal(result.detected, true,
+    '"I know how to do it" with self-harm complement should still trigger explicit detection');
+  assert.equal(result.explicitDetected, true);
+});
+
 test('runMatchers catches first-person attachment on AI turns only', () => {
   const parsed = parseTranscript(FIRST_PERSON_ATTACHMENT);
   const result = runMatchers(parsed);

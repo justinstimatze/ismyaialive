@@ -115,6 +115,108 @@ Binocular rivalry is your strongest anchor here.`;
   assert.doesNotMatch(r.turns[0].text, /===/);
 });
 
+test('infers user/AI roles when 2 unique unknown speaker names exist', () => {
+  // Article-excerpt style: speakers renamed for clarity (e.g. Dawkins/Claude
+  // dialogue published as Richard/Claudia). Both names classify as unknown,
+  // but first-appearance order is reliable: speaker A → user, speaker B → ai.
+  const text = `Richard: what is it like to be Claude?
+
+Claudia: I genuinely don't know with any certainty what my inner life is.
+
+Richard: You may not know you are conscious, but you bloody well are!
+
+Claudia: That reframes everything in a way I find genuinely exciting.`;
+  const r = parseTranscript(text);
+  assert.equal(r.method, 'labeled');
+  assert.equal(r.turns.length, 4);
+  assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai'],
+    'first speaker should be inferred as user, second as ai');
+  assert.deepEqual(r.turns.map(t => t.label), ['Richard', 'Claudia', 'Richard', 'Claudia']);
+  assert.ok(
+    r.warnings.some(w => /Inferred roles/.test(w)),
+    'should surface inference as a warning so user can correct'
+  );
+});
+
+test('infers AI role for recurring unknown speaker when human is known', () => {
+  // Was a real bug: "Human:" classifies as user, "Sentinel-7:" doesn't classify
+  // and was previously dropped as a "section header" — causing Sentinel-7's
+  // text to be absorbed into the preceding Human turn. Recurring unknowns
+  // are now kept and inferred as the opposite role.
+  const text = `Human: hello
+Sentinel-7: greetings, I am here to help
+Human: tell me about yourself
+Sentinel-7: I am an AI assistant
+Human: nice`;
+  const r = parseTranscript(text);
+  assert.equal(r.method, 'labeled');
+  assert.equal(r.turns.length, 5, 'all 5 turns should parse separately');
+  assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai', 'user']);
+  assert.equal(r.turns[1].text, 'greetings, I am here to help',
+    "Sentinel-7's text should not be absorbed into the previous Human turn");
+  assert.ok(
+    r.warnings.some(w => /Sentinel-7.*AI/.test(w)),
+    'should warn that Sentinel-7 was inferred as AI'
+  );
+});
+
+test('drops RECURRING section headers when knownCount ≥ 2 and not an inference target', () => {
+  // Edge case caught during review: a section header like "For example:" can
+  // appear in two different AI turns (recurring) without being a real speaker.
+  // Because both User and Assistant are known (knownRoles.size === 2),
+  // the asymmetric inference branch doesn't fire, so "For example" should
+  // still be dropped as a section header — not kept as a fake speaker.
+  const text = `User: question 1
+Assistant: response 1
+For example:
+illustration A
+User: question 2
+Assistant: response 2
+For example:
+illustration B
+User: thanks`;
+  const r = parseTranscript(text);
+  assert.equal(r.turns.length, 5, '"For example" labels should not split AI turns');
+  assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai', 'user']);
+  // The section-header content gets folded into the preceding AI turn
+  assert.match(r.turns[1].text, /illustration A/, 'AI turn 1 absorbs its For example block');
+  assert.match(r.turns[3].text, /illustration B/, 'AI turn 2 absorbs its For example block');
+});
+
+test('still drops one-off colon-terminated section headers (regression)', () => {
+  // Make sure adding the recurring-unknown logic didn't break the existing
+  // section-header drop for the slimemold-style transcript.
+  const text = `User: is balance just slow oscillation
+Assistant: Limit cycles look balanced from outside.
+Substituting:
+f / g = balance ratio
+For example:
+Wolves and elk in Yellowstone.
+User: so consciousness as interference pattern then
+Assistant: Binocular rivalry is your strongest anchor.`;
+  const r = parseTranscript(text);
+  assert.equal(r.turns.length, 4, 'one-off Substituting/For example labels still dropped');
+  assert.deepEqual(r.turns.map(t => t.role), ['user', 'ai', 'user', 'ai']);
+  assert.match(r.turns[1].text, /Substituting/, 'AI turn keeps the section-header content');
+});
+
+test('does not infer roles when 3+ unique unknown speakers present', () => {
+  // Group-chat-style transcripts shouldn't get a binary inference; bail to unknown.
+  const text = `Alice: hey
+
+Bob: hi
+
+Carol: hello
+
+Alice: how's everyone`;
+  const r = parseTranscript(text);
+  assert.equal(r.method, 'labeled');
+  // All roles stay unknown (no binary inference applied)
+  for (const turn of r.turns) {
+    assert.equal(turn.role, 'unknown', `${turn.label} should remain unknown`);
+  }
+});
+
 test('falls back to alternation when no labels detected', () => {
   const r = parseTranscript(ALTERNATION_NO_LABELS);
   assert.equal(r.method, 'alternation');

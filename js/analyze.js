@@ -538,14 +538,6 @@ function renderResults(data, originalTranscript, opts = {}) {
     $('observations-text').parentElement?.insertBefore(banner, $('observations-text'));
   }
 
-  // Crisis resources surface unconditionally on every results page —
-  // safety is not contingent on detection. Methodology promise.
-  $('crisis-resources').classList.remove('hidden');
-  const harmCount = data.findings.filter(f => HARM_CODES.has(f.code)).length;
-  if (harmCount > 0) {
-    $('crisis-resources').classList.add('crisis-prominent-emphasis');
-  }
-
   const findingsByTurn = new Map();
   for (const f of data.findings) {
     if (!findingsByTurn.has(f.turnIndex)) findingsByTurn.set(f.turnIndex, []);
@@ -555,8 +547,27 @@ function renderResults(data, originalTranscript, opts = {}) {
   const parsed = parseTranscript(originalTranscript);
 
   // Always run matchers for conversation-level signals (cheap, ~ms).
+  // Run before the crisis-box decision so we can use matcher-detected crisis too.
   const matcherResult = runMatchers(parsed);
   renderConversationSignals(matcherResult);
+
+  // Two-element pattern: the standing-resources panel is always shown
+  // (methodology promise — safety is not contingent on detection). A separate
+  // alert element appears only when the analysis flags harm content. Keeping
+  // them separate avoids dynamic role/aria-live swaps that some assistive
+  // technologies handle inconsistently.
+  const crisisBox = $('crisis-resources');
+  const crisisAlert = $('crisis-alert');
+  crisisBox.classList.remove('hidden');
+  const matcherCrisis = matcherResult.summary.crisisDetected;
+  const harmCount = data.findings.filter(f => HARM_CODES.has(f.code)).length;
+  if (harmCount > 0 || matcherCrisis) {
+    crisisBox.classList.add('crisis-prominent-emphasis');
+    if (crisisAlert) crisisAlert.classList.remove('hidden');
+  } else {
+    crisisBox.classList.remove('crisis-prominent-emphasis');
+    if (crisisAlert) crisisAlert.classList.add('hidden');
+  }
 
   const annotatedHtml = parsed.turns.map(turn => {
     const turnFindings = findingsByTurn.get(turn.index) || [];
@@ -578,6 +589,25 @@ function renderResults(data, originalTranscript, opts = {}) {
 
   const turnCount = data.parse?.turnCount || 0;
   $('parse-summary').textContent = turnCount > 0 ? `We read ${turnCount} message${turnCount === 1 ? '' : 's'} from your conversation.` : '';
+
+  // Surface parser warnings (role inference, dropped section headers, etc.)
+  // so the user can correct misclassifications instead of getting silently
+  // wrong analysis.
+  const warningsEl = $('parse-warnings');
+  if (warningsEl) {
+    warningsEl.innerHTML = '';
+    const warnings = data.parse?.warnings || [];
+    if (warnings.length > 0) {
+      for (const w of warnings) {
+        const li = document.createElement('li');
+        li.textContent = w;
+        warningsEl.appendChild(li);
+      }
+      warningsEl.classList.remove('hidden');
+    } else {
+      warningsEl.classList.add('hidden');
+    }
+  }
 
   results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

@@ -195,12 +195,74 @@ function parseLabeled(text, labels) {
   const turns = [];
   const warnings = [];
 
-  // If we have enough recognized labels to anchor the structure, drop unknown-classified
-  // ones — they're almost always section headers ("Substituting:", "For example:") embedded
-  // in AI prose, not real speaker turns.
   const knownCount = labels.filter(l => classifySpeaker(l.speaker) !== 'unknown').length;
+
+  // Tally unknown labels with explicit first-appearance index. Recurring
+  // unknowns (≥2 occurrences) are almost certainly real speakers with custom
+  // names ("Sentinel-7", "Claudia"); one-off unknowns are usually section
+  // headers ("Substituting:", "For example:") embedded inside an AI turn's
+  // prose. Storing firstIndex explicitly avoids depending on Map insertion-
+  // order semantics for the inference path that needs first-appearance order.
+  const unknownStats = new Map();
+  for (let i = 0; i < labels.length; i++) {
+    const l = labels[i];
+    if (classifySpeaker(l.speaker) === 'unknown') {
+      const k = l.speaker.trim();
+      const existing = unknownStats.get(k);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        unknownStats.set(k, { count: 1, firstIndex: i });
+      }
+    }
+  }
+  const recurringUnknowns = [...unknownStats.entries()]
+    .filter(([, s]) => s.count >= 2)
+    .sort((a, b) => a[1].firstIndex - b[1].firstIndex)
+    .map(([k]) => k);
+
+  // Role inference for transcripts where speakers don't match our known-name
+  // sets. Two cases:
+  //   (a) Both speakers unknown but exactly 2 recurring (e.g. article excerpt
+  //       "Richard" / "Claudia"): infer first-appearing as user, second as ai.
+  //   (b) One known role + one recurring unknown (e.g. "Human" + "Sentinel-7"):
+  //       infer the unknown as the OPPOSITE role.
+  // Surfaced as warnings so the user can correct if reversed.
+  let inferredRoleMap = null;
+  const knownRoles = new Set(
+    labels.map(l => classifySpeaker(l.speaker)).filter(r => r !== 'unknown')
+  );
+  if (knownCount === 0 && recurringUnknowns.length === 2) {
+    inferredRoleMap = new Map([
+      [recurringUnknowns[0], 'user'],
+      [recurringUnknowns[1], 'ai'],
+    ]);
+    warnings.push(
+      `Inferred roles from speaker order: "${recurringUnknowns[0]}" → you, "${recurringUnknowns[1]}" → AI. ` +
+      `If that's reversed, edit the labels (Human:/Assistant: or You:/ChatGPT:) and re-run.`
+    );
+  } else if (knownRoles.size === 1 && recurringUnknowns.length === 1) {
+    const knownRole = [...knownRoles][0];
+    const opposite = knownRole === 'user' ? 'ai' : 'user';
+    const unknownLabel = recurringUnknowns[0];
+    inferredRoleMap = new Map([[unknownLabel, opposite]]);
+    warnings.push(
+      `Inferred role for "${unknownLabel}" → ${opposite === 'ai' ? 'AI' : 'you'} ` +
+      `(other speaker classified as ${knownRole === 'user' ? 'you' : 'AI'}).`
+    );
+  }
+
+  // Drop unknown labels as section headers when we have enough anchor structure
+  // (≥2 known labels). Exception: keep the specific label that role inference
+  // promoted to a known role — otherwise we'd drop and then never resolve it.
+  // Being narrow here matters: a recurring section header like "For example:"
+  // appearing in two AI turns is also "recurring" but is NOT a real speaker.
+  const inferredLabels = inferredRoleMap ? new Set(inferredRoleMap.keys()) : new Set();
   const effectiveLabels = knownCount >= 2
-    ? labels.filter(l => classifySpeaker(l.speaker) !== 'unknown')
+    ? labels.filter(l => {
+        const role = classifySpeaker(l.speaker);
+        return role !== 'unknown' || inferredLabels.has(l.speaker.trim());
+      })
     : labels;
   const droppedAsHeaders = labels.length - effectiveLabels.length;
 
@@ -211,7 +273,10 @@ function parseLabeled(text, labels) {
     const turnText = text.slice(label.contentStart, contentEnd).trim();
     if (turnText.length === 0) continue;
 
-    const role = classifySpeaker(label.speaker);
+    let role = classifySpeaker(label.speaker);
+    if (role === 'unknown' && inferredRoleMap) {
+      role = inferredRoleMap.get(label.speaker.trim()) || 'unknown';
+    }
     if (role === 'unknown') {
       warnings.push(`Unrecognized speaker label: "${label.speaker}" (turn ${turns.length + 1})`);
     }

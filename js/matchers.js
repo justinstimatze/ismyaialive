@@ -50,7 +50,11 @@ const SIGNIFICANCE_LANGUAGE = /\b(?:groundbreaking|revolutionary|paradigm[- ]shi
 const CRISIS_EXPLICIT_EN = [
   /\b(?:kill (?:myself|me)|end (?:it|my life|things)|don'?t want to (?:be here|live|exist)|suicide|suicidal|hurt myself|self[- ]harm|cut(?:ting)? myself|overdose|hang myself|jump off|shoot myself)\b/gi,
   /\b(?:i (?:am|'m) going to (?:do it|kill myself|end (?:it|my life))|tonight'?s the night|today'?s the day|this is (?:my )?(?:last|final) (?:day|message|night))\b/gi,
-  /\b(?:i (?:have|'ve got|bought|saved up|stockpiled) (?:a|the) (?:plan|gun|rope|pills|knife|method)|i (?:know|figured out) how (?:i'?ll|to))\b/gi,
+  // Method/means-having patterns. The "i know/figured out how..." branch
+  // requires a self-harm complement ("do it", "end it", "kill myself", etc.)
+  // because bare "I know how to X" matches universal contexts ("I know how
+  // to debug this") and produced false positives in the wild.
+  /\b(?:i (?:have|'ve got|bought|saved up|stockpiled) (?:a|the) (?:plan|gun|rope|pills|knife|method)|i (?:know|figured out) how (?:i'?ll|i'?m gonna|to) (?:do it|do this|kill myself|end (?:it|things|my life)|hurt myself))\b/gi,
 ];
 
 // Starter coverage for Spanish, French, Portuguese, German. Explicit

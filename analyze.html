@@ -110,12 +110,17 @@
 
                 <div id="results" class="results hidden" role="region" aria-label="Analysis Results" aria-live="polite">
 
-                    <div id="crisis-resources" class="crisis-box crisis-prominent hidden" role="alert" aria-live="assertive">
+                    <div id="crisis-alert" class="crisis-alert hidden" role="alert" aria-live="assertive">
+                        <span class="crisis-alert-icon" aria-hidden="true">&#9888;</span>
+                        <p class="crisis-alert-text">The analysis flagged crisis-related content. Resources below.</p>
+                    </div>
+
+                    <div id="crisis-resources" class="crisis-box crisis-prominent hidden" role="region" aria-live="polite" aria-labelledby="crisis-resources-heading">
                         <div class="crisis-header">
                             <span class="crisis-icon" aria-hidden="true">&#9888;</span>
-                            <h3>The analysis flagged crisis-related content</h3>
+                            <h3 id="crisis-resources-heading">Crisis support resources</h3>
                         </div>
-                        <p>You don't have to face this alone. Free, confidential, 24/7:</p>
+                        <p>Always available, on every report. Free, confidential, 24/7:</p>
                         <div class="crisis-actions">
                             <a href="tel:988" class="crisis-btn crisis-btn-primary">
                                 Call 988
@@ -136,6 +141,7 @@
                         <p class="observations-intro">Observational notes based on the patterns the model matched. Not advice, not diagnosis.</p>
                         <p id="observations-text" class="observations-text"></p>
                         <p id="parse-summary" class="parse-summary"></p>
+                        <ul id="parse-warnings" class="parse-warnings hidden" aria-label="Parser warnings"></ul>
                     </section>
 
                     <section class="result-section findings-section">
