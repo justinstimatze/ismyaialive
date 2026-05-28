@@ -33,6 +33,6 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.4.0",
     "globals": "^17.6.0",
-    "wrangler": "^4.93.0"
+    "wrangler": "^4.95.0"
   }
 }
