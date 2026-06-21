@@ -37,7 +37,7 @@ jobs:
         run: node scripts/run-regression.mjs
       - name: Open issue on regression
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = `Regression harness drift on ${new Date().toISOString().slice(0, 10)}`;
