@@ -31,8 +31,8 @@
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.7.0",
-    "globals": "^17.7.0",
-    "wrangler": "^4.113.0"
+    "eslint": "^10.8.0",
+    "globals": "^17.8.0",
+    "wrangler": "^4.115.0"
   }
 }
