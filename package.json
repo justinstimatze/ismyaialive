@@ -32,7 +32,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.8.0",
-    "globals": "^17.8.0",
-    "wrangler": "^4.115.0"
+    "globals": "^17.9.0",
+    "wrangler": "^4.118.0"
   }
 }
